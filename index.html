@@ -1,83 +1,93 @@
-<html>
+<html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CombineVR</title>
   <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="scripts.js"></script>
 </head>
 
-<body class="bg-gray-900 text-white font-inter">
-  <header class="p-6 bg-gray-800 shadow-md">
-    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
-      <h1 class="text-4xl font-bold text-blue-400">CombineVR</h1>
+<body>
+  <header>
+    <div>
+      <h1>CombineVR</h1>
     </div>
   </header>
 
-  <main class="container mx-auto mt-12 px-4">
-    <div class="text-center mb-8">
-      <h2 class="text-3xl font-semibold text-blue-300">Explore. Interact.</h2>
-      <p class="mt-2 text-gray-400">CombineVR allows you to import multiple 3D models from Sketchfab and interact with
-        them in VR/AR. To get started, connect to Sketchfab to browse and import your favorite 3D models.
-      </p>
+  <main>
+    <div class="hero">
+      <h2>Explore. Interact.</h2>
+      <p>CombineVR allows you to import multiple 3D models from Sketchfab and interact with them in VR/AR. To get started, connect to Sketchfab to browse and import your favorite 3D models.</p>
     </div>
 
-    <div class="text-center mb-8">
-      <button
-        class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-purple-600 hover:to-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg">
+    <div class="connect-button">
+      <button>
         Connect to Sketchfab
       </button>
     </div>
 
-    <div id="myEmbeddedScene" class="rounded-lg overflow-hidden shadow-xl border border-gray-700">
-      <a-scene embedded>
-        <a-sky color="#6EBAA7"></a-sky>
-        <a-assets>
-          <a-asset-item id="model"
-            src="https://cdn.glitch.global/1f292802-7f9c-4368-b80d-6458dbb0ae37/1964.88_armor_for_man_and_horse.glb?v=1746876717267"></a-asset-item>
-        </a-assets>
-        <a-entity id="rig" position="0 0 0">
-          <a-entity id="camera" position="0 1.6 0" camera look-controls wasd-controls></a-entity>
-          <a-entity gltf-model="#piece" position="0 0.8 -0.3" rotation="0 0 0" scale="0.4 0.4 0.4"
-            id="pieceEntity"></a-entity>
-          <a-entity id="leftHand" hand-tracking-controls="hand: left;"></a-entity>
-          <a-entity id="rightHand" hand-tracking-controls="hand: right;"></a-entity>
-          <a-entity meta-touch-controls="hand: left"></a-entity>
-          <a-entity meta-touch-controls="hand: right" thumbstick-logging laser-controls="hand: right"
-            raycaster="lineColor: #fff; lineOpacity: 0.7; far: 10" grabbing scaling teleporting></a-entity>
-        </a-entity>
-        <a-entity resize gltf-model="#model" position="0 0.5 -2" rotation="0 -90 0"></a-entity>
-        <a-plane color="#CCC" height="100" width="100" rotation="-90 0 0"></a-plane>
-      </a-scene>
-    </div>
+    <div class="scene-container">
+      <div id="myEmbeddedScene">
+        <a-scene embedded>
+          <a-sky color="#6EBAA7"></a-sky>
+          <a-assets>
+            <a-asset-item id="model"
+              src="https://cdn.glitch.global/1f292802-7f9c-4368-b80d-6458dbb0ae37/1964.88_armor_for_man_and_horse.glb?v=1746876717267"></a-asset-item>
+          </a-assets>
+          <a-entity id="rig" position="0 0 0">
+            <a-entity id="camera" position="0 1.6 0" camera look-controls wasd-controls></a-entity>
+            <a-entity gltf-model="#piece" position="0 0.8 -0.3" rotation="0 0 0" scale="0.4 0.4 0.4"
+              id="pieceEntity"></a-entity>
+            <a-entity id="leftHand" hand-tracking-controls="hand: left;"></a-entity>
+            <a-entity id="rightHand" hand-tracking-controls="hand: right;"></a-entity>
+            <a-entity meta-touch-controls="hand: left"></a-entity>
+            <a-entity meta-touch-controls="hand: right" thumbstick-logging laser-controls="hand: right"
+              raycaster="lineColor: #fff; lineOpacity: 0.7; far: 10" grabbing scaling teleporting></a-entity>
+          </a-entity>
+          <a-entity resize gltf-model="#model" position="0 0.5 -1.5" rotation="0 -90 0"></a-entity>
+          <a-plane color="#CCC" height="100" width="100" rotation="-90 0 0"></a-plane>
+        </a-scene>
+      </div>
 
-    <section class="favorite-models mt-12">
-      <h2 class="text-2xl font-semibold text-blue-300 text-center">Your Favorite Models</h2>
-      <ul class="mt-4">
-        <li class="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-md mb-2">
-          <span>Model Name 1</span>
-          <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-            Remove
-          </button>
-        </li>
-        <li class="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-md mb-2">
-          <span>Model Name 2</span>
-          <button class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-            Remove
-          </button>
-        </li>
-        <!-- Additional models will be dynamically added here -->
-      </ul>
-    </section>
+      <section class="model-list">
+        <h2>Your Downloaded Models</h2>
+        <ul>
+          <li>
+            <span>Model Name 1</span>
+            <div class="model-actions">
+              <button class="btn btn-import">
+                Import
+              </button>
+              <button class="btn btn-remove">
+                Remove
+              </button>
+            </div>
+          </li>
+          <li>
+            <span>Model Name 2</span>
+            <div class="model-actions">
+              <button class="btn btn-import">
+                Import
+              </button>
+              <button class="btn btn-remove">
+                Remove
+              </button>
+            </div>
+          </li>
+          <!-- Additional models will be dynamically added here -->
+        </ul>
+      </section>
+    </div>
   </main>
 
-  <footer class="mt-12 p-6 bg-gray-800 text-center text-gray-400">
+  <footer style="margin-top: 3rem; padding: 1.5rem; background-color: #2d3748; text-align: center; color: #a0aec0;">
     <p>© 2025 CombineVR. All rights reserved.</p>
-    <p class="mt-2">
-      <a href="#" class="text-blue-400 hover:underline">Privacy Policy</a> |
-      <a href="#" class="text-blue-400 hover:underline">Terms of Service</a>
+    <p style="margin-top: 0.5rem;">
+      <a href="#" style="color: #63b3ed; text-decoration: underline;">Privacy Policy</a> |
+      <a href="#" style="color: #63b3ed; text-decoration: underline;">Terms of Service</a>
     </p>
   </footer>
 </body>
