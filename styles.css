@@ -1,0 +1,113 @@
+/* Import Nunito font */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+/* Update body font */
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #121212; /* Darker background for better contrast */
+  color: #e0e0e0; /* Light gray text for readability */
+  margin: 0;
+  padding: 0;
+}
+
+/* Modernize a-scene styling */
+a-scene {
+  height: 500px;
+  width: 100%;
+  margin: 0 auto;
+  display: block;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+header {
+  background: #1e1e1e; /* Slightly lighter than body for distinction */
+  color: #ffffff; /* White text for better contrast */
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+header button:hover {
+  background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+footer {
+  background: #1e1e1e; /* Match header background */
+  color: #e0e0e0; /* Light gray text */
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Mockup section for saving favorite models */
+.favorite-models {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.favorite-models h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.favorite-models ul {
+  list-style: none;
+  padding: 0;
+}
+
+.favorite-models li {
+  background: #2a2a2a; /* Dark gray for list items */
+  color: #e0e0e0; /* Light gray text */
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.favorite-models button {
+  background: #3a3a3a; /* Darker button background */
+  color: #ffffff; /* White text */
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.favorite-models button:hover {
+  background: #4a4a4a; /* Slightly lighter on hover */
+}
+
+@media (max-width: 768px) {
+  a-scene {
+    height: 300px;
+  }
+
+  header h1 {
+    font-size: 2.5rem;
+  }
+
+  header button {
+    width: 100%;
+  }
+}
