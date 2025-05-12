@@ -71,6 +71,15 @@
   <footer style="margin-top: 3rem; padding: 1.5rem; background-color: #2d3748; text-align: center; color: #a0aec0;">
     <p>© 2025 CombineVR. All rights reserved.</p>
   </footer>
+  <script type="module">
+    import { loginWithSketchfab } from './sketchfab-auth.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      const loginBtn = document.getElementById('sketchfab-login-btn');
+      if (loginBtn) {
+        loginBtn.onclick = loginWithSketchfab;
+      }
+    });
+  </script>
 </body>
 
 </html>

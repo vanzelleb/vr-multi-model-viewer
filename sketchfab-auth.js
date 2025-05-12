@@ -27,3 +27,7 @@ export function handleOAuthRedirect(showSearch, showLogin) {
   }
   return token;
 }
+
+export function loginWithSketchfab() {
+  window.location.href = OAUTH_URL;
+}
