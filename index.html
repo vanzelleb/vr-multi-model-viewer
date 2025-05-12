@@ -72,8 +72,19 @@
     <p>© 2025 CombineVR. All rights reserved.</p>
   </footer>
   <script type="module">
-    import { loginWithSketchfab } from './sketchfab-auth.js';
+    import { handleOAuthRedirect, loginWithSketchfab } from './sketchfab-auth.js';
+
+    function showSearch() {
+      document.getElementById('sketchfab-login-container').style.display = 'none';
+      document.getElementById('sketchfab-search-container').style.display = 'flex';
+    }
+    function showLogin() {
+      document.getElementById('sketchfab-login-container').style.display = 'block';
+      document.getElementById('sketchfab-search-container').style.display = 'none';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      handleOAuthRedirect(showSearch, showLogin);
       const loginBtn = document.getElementById('sketchfab-login-btn');
       if (loginBtn) {
         loginBtn.onclick = loginWithSketchfab;
