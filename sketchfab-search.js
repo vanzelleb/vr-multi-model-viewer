@@ -5,20 +5,19 @@ import { addDownloadedModel, renderDownloadedModels } from './sketchfab-storage.
 let currentPage = 1;
 let lastQuery = '';
 let lastResults = [];
-const MODELS_PER_PAGE = 20;
+const MODELS_PER_PAGE = 24;
 
 export async function searchSketchfab(query, resultsDiv, page = 1) {
   const token = getAccessToken();
   if (!token) return;
   resultsDiv.innerHTML = '<div>Loading...</div>';
-  const res = await fetch(`https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&per_page=100`, {
+  const res = await fetch(`https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   const data = await res.json();
-  // Only show models with a downloadable .glb
-  const filtered = data.results.filter(model => getSmallestGlbFile(model));
+  // No additional filter needed, API already restricts to .glb models
   lastQuery = query;
-  lastResults = filtered;
+  lastResults = data.results;
   currentPage = page;
   renderSearchResults(resultsDiv);
 }
@@ -29,13 +28,8 @@ function renderSearchResults(resultsDiv) {
   const end = start + MODELS_PER_PAGE;
   const pageResults = lastResults.slice(start, end);
   pageResults.forEach(model => {
-    const smallestGlb = getSmallestGlbFile(model);
-    let sizeMB = null;
-    if (smallestGlb && smallestGlb.size) {
-      sizeMB = (smallestGlb.size / (1024 * 1024)).toFixed(2);
-    }
+    const glbFiles = getAllGlbFiles(model);
     // Attribution per Sketchfab standards
-    // "Model Name" by Author Name licensed under CC BY 4.0 on Sketchfab
     const attribution = `
       <span class="skfb-attrib">
         <a href="https://sketchfab.com/3d-models/${model.slug || model.uid}" target="_blank" rel="noopener">${model.name}</a>
@@ -45,15 +39,34 @@ function renderSearchResults(resultsDiv) {
     `;
     const el = document.createElement('div');
     el.className = 'sketchfab-result';
+    let glbListHtml = '';
+    if (glbFiles.length) {
+      glbListHtml = '<div class="sketchfab-glb-list">';
+      glbFiles.forEach((file, idx) => {
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        glbListHtml += `
+          <div class="sketchfab-glb-item">
+            <span>GLB #${idx + 1}: ${sizeMB} MB</span>
+            <button class="sketchfab-result-download" data-glb-idx="${idx}">Download</button>
+          </div>
+        `;
+      });
+      glbListHtml += '</div>';
+    } else {
+      glbListHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
+    }
     el.innerHTML = `
       <img src="${model.thumbnails.images[0].url}" alt="${model.name}" />
       <div class="sketchfab-result-title">${model.name}</div>
       <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
-      ${sizeMB ? `<div class="sketchfab-result-size">${sizeMB} MB</div>` : '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>'}
-      <button class="sketchfab-result-download">Download</button>
+      ${glbListHtml}
       <div class="sketchfab-result-attribution">${attribution}</div>
     `;
-    el.querySelector('.sketchfab-result-download').onclick = () => downloadAndSaveModel(model, smallestGlb);
+    // Attach download handlers for each .glb
+    el.querySelectorAll('.sketchfab-result-download').forEach(btn => {
+      const idx = parseInt(btn.getAttribute('data-glb-idx'), 10);
+      btn.onclick = () => downloadAndSaveModel(model, glbFiles[idx]);
+    });
     resultsDiv.appendChild(el);
   });
   // Pagination controls
@@ -85,18 +98,10 @@ function renderSearchResults(resultsDiv) {
   }
 }
 
-function getSmallestGlbFile(model) {
-  if (!model.archives || !model.archives.gltf) return null;
+function getAllGlbFiles(model) {
+  if (!model.archives || !model.archives.gltf) return [];
   const gltfArr = Array.isArray(model.archives.gltf) ? model.archives.gltf : [model.archives.gltf];
-  let smallest = null;
-  let minSize = Infinity;
-  for (const file of gltfArr) {
-    if (file.format === 'gltf' && file.size && file.url && file.url.endsWith('.glb') && file.size < minSize) {
-      smallest = file;
-      minSize = file.size;
-    }
-  }
-  return smallest;
+  return gltfArr.filter(file => file.format === 'gltf' && file.size && file.url && file.url.endsWith('.glb'));
 }
 
 async function downloadAndSaveModel(model, glbFile) {
