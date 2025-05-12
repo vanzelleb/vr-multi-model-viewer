@@ -120,7 +120,6 @@ AFRAME.registerComponent("resize", {
       if (model) {
         var box = new THREE.Box3().setFromObject(model);
         var size = box.getSize(new THREE.Vector3());
-        console.log("Model size:", size);
       } else {
         console.warn("Model is undefined!");
       }
