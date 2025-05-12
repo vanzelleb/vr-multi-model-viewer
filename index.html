@@ -25,7 +25,7 @@
 
     <div class="connect-button">
       <button>
-        Connect to Sketchfab
+        Login to Sketchfab
       </button>
     </div>
 
@@ -95,6 +95,20 @@
           </li>
         </ul>
       </section>
+    </div>
+
+    <div id="sketchfab-modal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" id="close-modal">&times;</span>
+        <h2>Login to Sketchfab</h2>
+        <p>To import models, please log in with your Sketchfab account.</p>
+        <button id="sketchfab-oauth-btn">Continue with Sketchfab</button>
+      </div>
+    </div>
+    <div id="sketchfab-search-container" style="display:none;">
+      <input type="text" id="sketchfab-search" placeholder="Search Sketchfab models..." />
+      <button id="sketchfab-search-btn">Search</button>
+      <div id="sketchfab-search-results"></div>
     </div>
   </main>
 

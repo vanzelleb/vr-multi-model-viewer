@@ -137,3 +137,134 @@ AFRAME.registerComponent("resize", {
     });
   },
 });
+
+// --- Sketchfab OAuth and Model Search Logic ---
+const SKETCHFAB_CLIENT_ID = 'l1SrgifJvXQ3BehACPbq9ykx8Ke02NTYuyjXoLJv';
+const SKETCHFAB_REDIRECT_URI = 'https://combinevr.netlify.app/';
+const OAUTH_URL = `https://sketchfab.com/oauth2/authorize/?response_type=token&client_id=${SKETCHFAB_CLIENT_ID}&redirect_uri=${encodeURIComponent(SKETCHFAB_REDIRECT_URI)}`;
+
+let sketchfabAccessToken = localStorage.getItem('sketchfabAccessToken') || null;
+
+function showModal() {
+  document.getElementById('sketchfab-modal').style.display = 'flex';
+}
+function hideModal() {
+  document.getElementById('sketchfab-modal').style.display = 'none';
+}
+
+function showSearch() {
+  document.getElementById('sketchfab-search-container').style.display = 'flex';
+}
+function hideSearch() {
+  document.getElementById('sketchfab-search-container').style.display = 'none';
+}
+
+// Open modal on login button click
+const loginBtn = document.querySelector('.connect-button button');
+if (loginBtn) {
+  loginBtn.addEventListener('click', showModal);
+}
+
+// Modal close logic
+const closeModalBtn = document.getElementById('close-modal');
+if (closeModalBtn) {
+  closeModalBtn.addEventListener('click', hideModal);
+}
+
+// OAuth button logic
+const oauthBtn = document.getElementById('sketchfab-oauth-btn');
+if (oauthBtn) {
+  oauthBtn.addEventListener('click', () => {
+    window.location.href = OAUTH_URL;
+  });
+}
+
+// Handle OAuth redirect and extract token
+window.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash;
+  if (hash && hash.includes('access_token')) {
+    const params = new URLSearchParams(hash.replace('#', '?'));
+    sketchfabAccessToken = params.get('access_token');
+    localStorage.setItem('sketchfabAccessToken', sketchfabAccessToken);
+    hideModal();
+    showSearch();
+    // Optionally, remove token from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  } else if (sketchfabAccessToken) {
+    hideModal();
+    showSearch();
+  } else {
+    hideSearch();
+  }
+});
+
+// Search logic
+const searchBtn = document.getElementById('sketchfab-search-btn');
+const searchInput = document.getElementById('sketchfab-search');
+const resultsDiv = document.getElementById('sketchfab-search-results');
+
+async function searchSketchfab(query) {
+  if (!sketchfabAccessToken) return;
+  resultsDiv.innerHTML = '<div>Loading...</div>';
+  const res = await fetch(`https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true`, {
+    headers: { Authorization: `Bearer ${sketchfabAccessToken}` }
+  });
+  const data = await res.json();
+  resultsDiv.innerHTML = '';
+  data.results.forEach(model => {
+    const el = document.createElement('div');
+    el.className = 'sketchfab-result';
+    el.innerHTML = `
+      <img src="${model.thumbnails.images[0].url}" alt="${model.name}" />
+      <div class="sketchfab-result-title">${model.name}</div>
+      <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
+      <button class="sketchfab-result-download">Download</button>
+    `;
+    el.querySelector('.sketchfab-result-download').onclick = () => downloadAndImportModel(model.uid);
+    resultsDiv.appendChild(el);
+  });
+}
+
+if (searchBtn && searchInput) {
+  searchBtn.addEventListener('click', () => {
+    if (searchInput.value.trim()) {
+      searchSketchfab(searchInput.value.trim());
+    }
+  });
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && searchInput.value.trim()) {
+      searchSketchfab(searchInput.value.trim());
+    }
+  });
+}
+
+// Download and import model
+async function downloadAndImportModel(uid) {
+  if (!sketchfabAccessToken) return;
+  // Get model info
+  const res = await fetch(`https://api.sketchfab.com/v3/models/${uid}/download`, {
+    headers: { Authorization: `Bearer ${sketchfabAccessToken}` }
+  });
+  const data = await res.json();
+  if (data && data.gltf && data.gltf.url) {
+    // Save to localStorage (mock, as browser can't save files directly)
+    localStorage.setItem('combinevr-last-model-url', data.gltf.url);
+    // Update aframe scene
+    const assets = document.querySelector('a-assets');
+    let asset = document.getElementById('model');
+    if (!asset) {
+      asset = document.createElement('a-asset-item');
+      asset.id = 'model';
+      assets.appendChild(asset);
+    }
+    asset.setAttribute('src', data.gltf.url);
+    // Update entity
+    const entity = document.querySelector('a-entity[resize]');
+    if (entity) {
+      entity.setAttribute('gltf-model', '#model');
+    }
+    alert('Model imported!');
+  } else {
+    alert('Model download failed or not available.');
+  }
+}
