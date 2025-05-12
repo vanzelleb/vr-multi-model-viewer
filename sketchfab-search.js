@@ -28,7 +28,8 @@ function renderSearchResults(resultsDiv) {
   const end = start + MODELS_PER_PAGE;
   const pageResults = lastResults.slice(start, end);
   pageResults.forEach(model => {
-    const glbFiles = getAllGlbFiles(model);
+    // Get .glb archives directly from model.archives.glb
+    const glbFiles = (model.archives && model.archives.glb) ? model.archives.glb : [];
     // Attribution per Sketchfab standards
     const attribution = `
       <span class="skfb-attrib">
@@ -55,11 +56,19 @@ function renderSearchResults(resultsDiv) {
     } else {
       glbListHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
     }
+    // Show total size of all .glb archives for this model
+    let totalSize = 0;
+    glbFiles.forEach(file => { totalSize += file.size || 0; });
+    let sizeInfo = '';
+    if (glbFiles.length) {
+      sizeInfo = `<div class="sketchfab-result-size">Total .glb size: ${(totalSize / (1024 * 1024)).toFixed(2)} MB</div>`;
+    }
     el.innerHTML = `
       <img src="${model.thumbnails.images[0].url}" alt="${model.name}" />
       <div class="sketchfab-result-title">${model.name}</div>
       <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
       ${glbListHtml}
+      ${sizeInfo}
       <div class="sketchfab-result-attribution">${attribution}</div>
     `;
     // Attach download handlers for each .glb
@@ -96,12 +105,6 @@ function renderSearchResults(resultsDiv) {
     }
     resultsDiv.appendChild(nav);
   }
-}
-
-function getAllGlbFiles(model) {
-  if (!model.archives || !model.archives.gltf) return [];
-  const gltfArr = Array.isArray(model.archives.gltf) ? model.archives.gltf : [model.archives.gltf];
-  return gltfArr.filter(file => file.format === 'gltf' && file.size && file.url && file.url.endsWith('.glb'));
 }
 
 async function downloadAndSaveModel(model, glbFile) {
