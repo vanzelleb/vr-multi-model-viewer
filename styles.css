@@ -7,8 +7,6 @@
   padding: 0;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;900&display=swap');
-
 :root {
   --primary-color: #63b3ed;
   --secondary-color: #90cdf4;

@@ -216,7 +216,8 @@ async function downloadAndSaveModel(model, glbFile) {
     licenseUrl: model.licenseUrl || 'https://creativecommons.org/licenses/by/4.0/',
     files: fileBase64s,
     mainFileName,
-    size: glbFile.size
+    size: glbFile.size,
+    thumbnail: (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url) || ''
   });
-  console.log('Download: Saved model to storage', model.uid, mainFileName);
+  console.log('Download: Saved model to storage', model.uid, mainFileName, 'with thumbnail', (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url));
 }
