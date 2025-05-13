@@ -30,7 +30,7 @@ window.renderSketchfabSearchResultsUI = function(
       </span>
     `;
     const el = document.createElement('div');
-    el.className = 'sketchfab-result-card-grid';
+    el.className = 'sketchfab-result'; // Use the correct card class for grid
     let downloadHtml = '';
     let sizeMB = smallestGlb ? (smallestGlb.size / (1024 * 1024)).toFixed(2) : '';
     if (smallestGlb) {
@@ -41,19 +41,11 @@ window.renderSketchfabSearchResultsUI = function(
       downloadHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
     }
     el.innerHTML = `
-      <div class="sketchfab-result-thumb-cell">
-        <img src="${model.thumbnails.images[0].url}" alt="${model.name}" class="sketchfab-result-thumb" loading="lazy" />
-      </div>
-      <div class="sketchfab-result-title-cell">
-        <div class="sketchfab-result-title">${model.name}</div>
-      </div>
-      <div class="sketchfab-result-artist-cell">
-        <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
-      </div>
+      <img src="${model.thumbnails.images[0].url}" alt="${model.name}" class="sketchfab-result-thumb" loading="lazy" />
+      <div class="sketchfab-result-title">${model.name}</div>
+      <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
       <div class="sketchfab-result-download-cell">${downloadHtml}</div>
-      <div class="sketchfab-result-attribution-cell">
-        <div class="sketchfab-result-attribution">${attribution}</div>
-      </div>
+      <div class="sketchfab-result-attribution">${attribution}</div>
       <div class="sketchfab-result-size">${sizeMB} MB</div>
     `;
     if (smallestGlb && !downloadedUids.has(model.uid)) {
