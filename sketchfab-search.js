@@ -71,7 +71,6 @@ function renderSearchResults(resultsDiv) {
       <div class="sketchfab-result-title">${model.name}</div>
       <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
       ${glbListHtml}
-      ${sizeInfo}
       <div class="sketchfab-result-attribution">${attribution}</div>
     `;
     // Attach download handlers for each .glb (fix: use addEventListener instead of assigning onclick)
