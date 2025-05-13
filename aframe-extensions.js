@@ -1,4 +1,15 @@
 // A-Frame custom components
+AFRAME.registerComponent('look-at-camera', {
+  tick: function () {
+    const cameraEl = document.querySelector('[camera]');
+    if (!cameraEl) return;
+    
+    const worldPos = new THREE.Vector3();
+    cameraEl.object3D.getWorldPosition(worldPos);
+    this.el.object3D.lookAt(worldPos);
+  }
+});
+
 AFRAME.registerComponent("thumbstick-logging", {
   init: function () {
     this.el.addEventListener("thumbstickmoved", this.logThumbstick);
@@ -102,39 +113,60 @@ AFRAME.registerComponent("scaling", {
 
 AFRAME.registerComponent("resize", {
   schema: {
-    axis: {
-      type: "string",
-      default: "x",
-    },
-    value: {
-      type: "number",
-      default: 1,
-    },
+    targetSize: { type: "number", default: 2.0 }, // Target size in meters
+    scaleLimit: { type: "number", default: 10.0 } // Maximum scale factor
   },
-  init: function () {
-    var el = this.el;
-    var data = this.data;
-    var model = el.object3D;
-    el.addEventListener("model-loaded", function (e) {
-      var model = el.getObject3D("mesh");
-      if (model) {
-        var box = new THREE.Box3().setFromObject(model);
-        var size = box.getSize(new THREE.Vector3());
-      } else {
-        console.warn("Model is undefined!");
-      }
-      var x = size.x;
-      var y = size.y;
-      var z = size.z;
-      var scale;
-      if (data.axis === "x") {
-        scale = data.value / x;
-      } else if (data.axis === "y") {
-        scale = data.value / y;
-      } else {
-        scale = data.value / z;
-      }
-      el.setAttribute("scale", scale + " " + scale + " " + scale);
+
+  init: function() {
+    this.rescaleModel = this.rescaleModel.bind(this);
+    this.el.addEventListener("model-loaded", this.rescaleModel);
+  },
+
+  remove: function() {
+    this.el.removeEventListener("model-loaded", this.rescaleModel);
+  },
+
+  rescaleModel: function() {
+    const el = this.el;
+    const mesh = el.getObject3D("mesh");
+    
+    if (!mesh) {
+      console.warn("Model mesh not found");
+      return;
+    }
+
+    // Compute the model's bounding box
+    const box = new THREE.Box3().setFromObject(mesh);
+    const size = box.getSize(new THREE.Vector3());
+
+    // Find the largest dimension
+    const maxDim = Math.max(size.x, size.y, size.z);
+    
+    if (maxDim === 0) {
+      console.warn("Invalid model dimensions");
+      return;
+    }
+
+    // Calculate the scale factor needed to reach target size
+    const scaleFactor = Math.min(
+      this.data.targetSize / maxDim,
+      this.data.scaleLimit
+    );
+
+    // Apply uniform scaling
+    el.setAttribute("scale", `${scaleFactor} ${scaleFactor} ${scaleFactor}`);
+
+    // Center the model
+    const center = box.getCenter(new THREE.Vector3());
+    const offset = center.multiplyScalar(-scaleFactor);
+    
+    const currentPosition = el.getAttribute("position");
+    el.setAttribute("position", {
+      x: currentPosition.x + offset.x,
+      y: currentPosition.y + offset.y,
+      z: currentPosition.z + offset.z
     });
-  },
+
+    console.log(`Model rescaled. Original size: ${maxDim}m, Scale factor: ${scaleFactor}`);
+  }
 });
