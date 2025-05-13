@@ -67,7 +67,10 @@ window.renderSketchfabSearchResultsUI = function(
   });
   resultsDiv.appendChild(grid);
 
-  // Pagination controls
+  // Pagination controls in a full-width wrapper div (no inline styles)
+  const paginationWrapper = document.createElement('div');
+  paginationWrapper.className = 'sketchfab-pagination-wrapper';
+
   const paginationDiv = document.createElement('div');
   paginationDiv.className = 'sketchfab-pagination';
 
@@ -91,5 +94,17 @@ window.renderSketchfabSearchResultsUI = function(
     };
     paginationDiv.appendChild(nextBtn);
   }
-  resultsDiv.appendChild(paginationDiv);
+  paginationWrapper.appendChild(paginationDiv);
+  resultsDiv.appendChild(paginationWrapper);
+
+  // Change Downloaded button to 'My Models' and style as outlined
+  Array.from(document.querySelectorAll('.sketchfab-result-download')).forEach(btn => {
+    if (btn.textContent === 'Downloaded') {
+      btn.textContent = 'My Models';
+      btn.classList.remove('sketchfab-result-download');
+      btn.classList.add('sketchfab-result-mymodels');
+      btn.disabled = false;
+      btn.onclick = () => window.location.href = 'models.html';
+    }
+  });
 };
