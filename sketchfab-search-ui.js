@@ -50,7 +50,6 @@ function renderSearchResults(resultsDiv) {
             const sizeMB = (smallestGlb.size / (1024 * 1024)).toFixed(2);
             downloadHtml = `
         <button class="sketchfab-result-download" data-glb-idx="${glbFiles.indexOf(smallestGlb)}">Download</button>
-        <div class="sketchfab-result-size">${sizeMB} MB</div>
       `;
         } else {
             downloadHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
@@ -70,6 +69,7 @@ function renderSearchResults(resultsDiv) {
       <div class="sketchfab-result-attribution-cell">
         <div class="sketchfab-result-attribution">${attribution}</div>
       </div>
+      <div class="sketchfab-result-size">${sizeMB} MB</div>
     `;
 
         if (smallestGlb) {
@@ -112,44 +112,5 @@ function renderSearchResults(resultsDiv) {
         grid.appendChild(el);
     });
     resultsDiv.appendChild(grid);
-
-    // Add pagination container
-    const nav = document.createElement('div');
-    nav.className = 'sketchfab-pagination';
-    nav.setAttribute('role', 'navigation');
-    nav.setAttribute('aria-label', 'Search results pagination');
-    if (lastPrevUrl) {
-        const prevBtn = document.createElement('button');
-        prevBtn.textContent = 'Previous';
-        prevBtn.setAttribute('aria-label', 'Previous page');
-        prevBtn.onclick = () => fetchPage(lastPrevUrl, resultsDiv);
-        nav.appendChild(prevBtn);
-    }
-    if (lastNextUrl) {
-        const nextBtn = document.createElement('button');
-        nextBtn.textContent = 'Next';
-        nextBtn.setAttribute('aria-label', 'Next page');
-        nextBtn.onclick = () => fetchPage(lastNextUrl, resultsDiv);
-        nav.appendChild(nextBtn);
-    }
-
-    const paginationContainer = document.createElement('div');
-    paginationContainer.className = 'sketchfab-pagination-container';
-    paginationContainer.appendChild(nav);
-    if (nav.childNodes.length) resultsDiv.appendChild(paginationContainer);
-}
-
-async function fetchPage(url, resultsDiv) {
-    resultsDiv.innerHTML = '<div>Loading...</div>';
-    try {
-        const data = await fetchPaginatedResults(url);
-        console.log('FetchPage API data.next:', data.next, 'data.previous:', data.previous);
-        lastResults = data.results;
-        lastNextUrl = data.next || null;
-        lastPrevUrl = data.previous || null;
-        console.log('Set lastNextUrl:', lastNextUrl, 'lastPrevUrl:', lastPrevUrl);
-        renderSearchResults(resultsDiv);
-    } catch (e) {
-        resultsDiv.innerHTML = `<div>Error: ${e.message}</div>`;
-    }
+    // Pagination logic and UI removed; handled in sketchfab-search.js
 }

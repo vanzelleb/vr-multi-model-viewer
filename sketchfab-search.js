@@ -85,8 +85,31 @@ function renderSearchResults(resultsDiv) {
     }
     resultsDiv.appendChild(el);
   });
+
   // Pagination controls using API-provided next/previous links
-  // (Removed duplicate pagination logic; handled in sketchfab-search-ui.js)
+  const nav = document.createElement('div');
+  nav.className = 'sketchfab-pagination';
+nav.classList.add('sketchfab-pagination-controls');
+
+  if (lastPrevUrl) {
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = 'Previous';
+    prevBtn.className = 'sketchfab-result-download';
+    prevBtn.onclick = async () => {
+      await fetchPage(lastPrevUrl, resultsDiv);
+    };
+    nav.appendChild(prevBtn);
+  }
+  if (lastNextUrl) {
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next';
+    nextBtn.className = 'sketchfab-result-download';
+    nextBtn.onclick = async () => {
+      await fetchPage(lastNextUrl, resultsDiv);
+    };
+    nav.appendChild(nextBtn);
+  }
+  if (nav.childNodes.length) resultsDiv.appendChild(nav);
 }
 
 async function downloadAndSaveModel(model, glbFile) {
@@ -177,4 +200,18 @@ async function downloadAndSaveModel(model, glbFile) {
     thumbnail: (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url) || ''
   });
   console.log('Download: Saved model to storage', model.uid, mainFileName, 'with thumbnail', (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url));
+}
+
+async function fetchPage(url, resultsDiv) {
+  resultsDiv.innerHTML = '<div>Loading...</div>';
+  const token = getAccessToken();
+  if (!token) return;
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = await res.json();
+  lastResults = data.results;
+  lastNextUrl = data.next || null;
+  lastPrevUrl = data.previous || null;
+  renderSearchResults(resultsDiv);
 }
