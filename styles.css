@@ -201,6 +201,17 @@ main {
   transition: all 0.2s ease;
 }
 
+.model-item a {
+  color: #fff !important;
+  font-weight: 700;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.model-item a:hover {
+  color: var(--primary-color) !important;
+}
+
 .model-item:hover {
   background-color: rgba(255, 255, 255, 0.08);
   transform: translateY(-1px);
@@ -879,6 +890,8 @@ header nav a:focus {
   height: 64px;
   object-fit: cover;
   border-radius: 6px;
+  display: block;
+  background: #222;
 }
 .model-thumb-row img[onerror] {
   display: none;

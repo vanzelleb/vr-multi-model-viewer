@@ -134,7 +134,7 @@ function renderSearchResults(resultsDiv) {
     const paginationContainer = document.createElement('div');
     paginationContainer.className = 'sketchfab-pagination-container';
     paginationContainer.appendChild(nav);
-    if (nav.childNodes.length) resultsDiv.parentNode.insertBefore(paginationContainer, resultsDiv.nextSibling);
+    if (nav.childNodes.length) resultsDiv.appendChild(paginationContainer);
 }
 
 async function fetchPage(url, resultsDiv) {

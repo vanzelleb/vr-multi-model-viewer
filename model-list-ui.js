@@ -20,9 +20,9 @@ export function renderDownloadedModels() {
     li.className = 'model-item';
     li.innerHTML = `
       <div class="model-thumb-row">
-        <img src="${thumbnail}" alt="${m.name}" class="model-thumbnail" onerror="this.style.display='none'" />
-        <div class="model-info">
-          <h3 class="model-name"><a href="https://sketchfab.com/3d-models/${m.uid}" target="_blank" rel="noopener">${m.name}</a></h3>
+        ${thumbnail ? `<img src="${thumbnail}" alt="${m.name}" />` : ''}
+        <div>
+          <h3 class="model-name">${m.name}</h3>
           <span class="model-size">${(m.size / (1024 * 1024)).toFixed(2)} MB</span>
         </div>
       </div>
@@ -32,7 +32,8 @@ export function renderDownloadedModels() {
       </div>
       <div class="sketchfab-result-attribution">
         <span class="skfb-attrib">
-          By <a href="${artistUrl}" target="_blank" rel="noopener">${m.artist}</a>
+          <a href="https://sketchfab.com/3d-models/${m.uid}" target="_blank" rel="noopener">${m.name}</a>
+          by <a href="${artistUrl}" target="_blank" rel="noopener">${m.artist}</a>
           licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
         </span>
       </div>
