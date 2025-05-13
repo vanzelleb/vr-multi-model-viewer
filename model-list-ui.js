@@ -68,7 +68,7 @@ export function renderDownloadedModels() {
           importBtn.textContent = 'Failed!';
           importBtn.style.background = '#e53e3e'; // Error red
           setTimeout(() => {
-            importBtn.textContent = 'Retry Import';
+            importBtn.textContent = 'Import';
             importBtn.style.background = '';
             importBtn.disabled = false;
             importBtn.style.opacity = '1';

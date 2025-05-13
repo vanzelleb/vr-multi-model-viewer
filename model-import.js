@@ -34,7 +34,7 @@ export function importModelToScene(model, allowMultiple = false) {
             if (gltfJson.buffers) {
               gltfJson.buffers.forEach((buf, i) => {
                 if (buf.uri && model.files[buf.uri]) {
-                  buf.uri = model.uid + '-' + btoa(buf.uri).replace(/[^a-zA-Z0-9]/g, '');
+                  buf.uri = '#' + model.uid + '-' + btoa(buf.uri).replace(/[^a-zA-Z0-9]/g, '');
                 }
               });
             }
@@ -42,7 +42,7 @@ export function importModelToScene(model, allowMultiple = false) {
             if (gltfJson.images) {
               gltfJson.images.forEach((img, i) => {
                 if (img.uri && model.files[img.uri]) {
-                  img.uri = model.uid + '-' + btoa(img.uri).replace(/[^a-zA-Z0-9]/g, '');
+                  img.uri = '#' + model.uid + '-' + btoa(img.uri).replace(/[^a-zA-Z0-9]/g, '');
                 }
               });
             }
