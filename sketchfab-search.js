@@ -46,35 +46,26 @@ function renderSearchResults(resultsDiv) {
     el.className = 'sketchfab-result';
     let glbListHtml = '';
     if (glbFiles.length) {
-      glbListHtml = '<div class="sketchfab-glb-list">';
-      glbFiles.forEach((file, idx) => {
-        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        if (downloadedUids.has(model.uid)) {
-          glbListHtml += `
-            <div class="sketchfab-glb-item">
-              <button class="sketchfab-result-goto" onclick="window.location.href='models.html'">See My Models</button>
-            </div>
-          `;
-        } else {
-          glbListHtml += `
-            <div class="sketchfab-glb-item">
-              <span>GLB #${idx + 1}: ${sizeMB} MB</span>
-              <button class="sketchfab-result-download" data-glb-idx="${idx}">Download</button>
-            </div>
-          `;
-        }
-      });
-      glbListHtml += '</div>';
+      const lastFile = glbFiles[glbFiles.length - 1];
+      const sizeMB = (lastFile.size / (1024 * 1024)).toFixed(2);
+      if (downloadedUids.has(model.uid)) {
+        glbListHtml = `
+          <div class="sketchfab-glb-item">
+            <button class="sketchfab-result-goto" onclick="window.location.href='models.html'">See My Models</button>
+          </div>
+        `;
+      } else {
+        glbListHtml = `
+          <div class="sketchfab-glb-item">
+            <button class="sketchfab-result-download" data-glb-idx="${glbFiles.length - 1}">Download</button>
+            <span>GLB: ${sizeMB} MB</span>
+          </div>
+        `;
+      }
     } else {
       glbListHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
     }
-    // Show total size of all .glb archives for this model
-    let totalSize = 0;
-    glbFiles.forEach(file => { totalSize += file.size || 0; });
-    let sizeInfo = '';
-    if (glbFiles.length) {
-      sizeInfo = `<div class="sketchfab-result-size">Total .glb size: ${(totalSize / (1024 * 1024)).toFixed(2)} MB</div>`;
-    }
+    
     el.innerHTML = `
       <img src="${model.thumbnails.images[0].url}" alt="${model.name}" />
       <div class="sketchfab-result-title">${model.name}</div>

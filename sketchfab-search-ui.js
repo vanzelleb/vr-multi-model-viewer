@@ -20,18 +20,18 @@ export async function searchSketchfab(query, resultsDiv, page = 1) {
 }
 
 function renderSearchResults(resultsDiv) {
-  // Use a grid layout for results
   resultsDiv.innerHTML = '';
   const grid = document.createElement('div');
   grid.className = 'sketchfab-results-grid';
 
   lastResults.forEach(model => {
-    // Find the smallest .glb file (if any)
+    // Find the smallest .glb file
     let glbFiles = (model.archives && model.archives.glb) ? model.archives.glb : [];
     let smallestGlb = null;
     if (glbFiles.length) {
-      smallestGlb = glbFiles.reduce((min, file) => (!min || (file.size < min.size)) ? file : min, null);
+      smallestGlb = glbFiles.reduce((min, file) => (!min || file.size < min.size) ? file : min, null);
     }
+
     const attribution = `
       <span class="skfb-attrib">
         <a href="https://sketchfab.com/3d-models/${model.slug || model.uid}" target="_blank" rel="noopener">${model.name}</a>
@@ -39,22 +39,24 @@ function renderSearchResults(resultsDiv) {
         licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
       </span>
     `;
+
     const el = document.createElement('div');
     el.className = 'sketchfab-result-card-grid';
-    // Only show the smallest GLB file
-    let glbHtml = '';
+    let downloadHtml = '';
+
     if (smallestGlb) {
       const sizeMB = (smallestGlb.size / (1024 * 1024)).toFixed(2);
-      glbHtml = `
-        <button class="sketchfab-result-download" data-glb-idx="0">Download</button>
+      downloadHtml = `
+        <button class="sketchfab-result-download" data-glb-idx="${glbFiles.indexOf(smallestGlb)}">Download</button>
         <div class="sketchfab-result-size">${sizeMB} MB</div>
       `;
     } else {
-      glbHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
+      downloadHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
     }
+
     el.innerHTML = `
       <div class="sketchfab-result-thumb-cell">
-        <img src="${model.thumbnails.images[0].url}" alt="${model.name}" class="sketchfab-result-thumb" />
+        <img src="${model.thumbnails.images[0].url}" alt="${model.name}" class="sketchfab-result-thumb" loading="lazy" />
       </div>
       <div class="sketchfab-result-title-cell">
         <div class="sketchfab-result-title">${model.name}</div>
@@ -62,18 +64,23 @@ function renderSearchResults(resultsDiv) {
       <div class="sketchfab-result-artist-cell">
         <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
       </div>
-      <div class="sketchfab-result-download-cell">${glbHtml}</div>
+      <div class="sketchfab-result-download-cell">${downloadHtml}</div>
       <div class="sketchfab-result-attribution-cell">
         <div class="sketchfab-result-attribution">${attribution}</div>
       </div>
     `;
-    // Attach download handler
+
     if (smallestGlb) {
       el.querySelector('.sketchfab-result-download').addEventListener('click', async () => {
         try {
+          const btn = el.querySelector('.sketchfab-result-download');
+          btn.textContent = 'Downloading...';
+          btn.disabled = true;
+          
           const downloadInfo = await fetchDownloadInfo(model.uid);
           const zipUrl = downloadInfo.gltf.url;
           const { fileBase64s, mainFileName } = await extractModelZip(zipUrl);
+          
           addDownloadedModel({
             uid: model.uid,
             name: model.name,
@@ -86,12 +93,17 @@ function renderSearchResults(resultsDiv) {
             size: smallestGlb.size,
             thumbnail: (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url) || ''
           });
-          el.querySelector('.sketchfab-result-download').textContent = 'See My Models';
-          el.querySelector('.sketchfab-result-download').classList.remove('sketchfab-result-download');
-          el.querySelector('.sketchfab-result-download').classList.add('sketchfab-result-goto');
-          el.querySelector('.sketchfab-result-goto').onclick = () => window.location.href = 'models.html';
+
+          btn.textContent = 'See My Models';
+          btn.disabled = false;
+          btn.classList.remove('sketchfab-result-download');
+          btn.classList.add('sketchfab-result-goto');
+          btn.onclick = () => window.location.href = 'models.html';
         } catch (e) {
           alert('Download failed: ' + e.message);
+          const btn = el.querySelector('.sketchfab-result-download');
+          btn.textContent = 'Download';
+          btn.disabled = false;
         }
       });
     }
@@ -99,23 +111,31 @@ function renderSearchResults(resultsDiv) {
   });
   resultsDiv.appendChild(grid);
 
-  // Pagination controls below the grid, Previous left of Next
+  // Add pagination container
   const nav = document.createElement('div');
   nav.className = 'sketchfab-pagination';
-  nav.style = 'display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;';
-  if (lastPrevUrl) {
-    const prevBtn = document.createElement('button');
-    prevBtn.textContent = 'Previous';
-    prevBtn.onclick = () => fetchPage(lastPrevUrl, resultsDiv);
-    nav.appendChild(prevBtn);
-  }
+  nav.setAttribute('role', 'navigation');
+  nav.setAttribute('aria-label', 'Search results pagination');
+  
   if (lastNextUrl) {
     const nextBtn = document.createElement('button');
     nextBtn.textContent = 'Next';
+    nextBtn.setAttribute('aria-label', 'Next page');
     nextBtn.onclick = () => fetchPage(lastNextUrl, resultsDiv);
     nav.appendChild(nextBtn);
   }
-  if (nav.childNodes.length) resultsDiv.appendChild(nav);
+  if (lastPrevUrl) {
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = 'Previous';
+    prevBtn.setAttribute('aria-label', 'Previous page');
+    prevBtn.onclick = () => fetchPage(lastPrevUrl, resultsDiv);
+    nav.insertBefore(prevBtn, nav.firstChild);
+  }
+  
+  const paginationContainer = document.createElement('div');
+  paginationContainer.className = 'sketchfab-pagination-container';
+  paginationContainer.appendChild(nav);
+  if (nav.childNodes.length) resultsDiv.parentNode.insertBefore(paginationContainer, resultsDiv.nextSibling);
 }
 
 async function fetchPage(url, resultsDiv) {
