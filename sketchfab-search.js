@@ -1,6 +1,7 @@
 // Sketchfab search and download logic
 import { getAccessToken } from './sketchfab-auth.js';
-import { addDownloadedModel, renderDownloadedModels } from './sketchfab-storage.js';
+import { addDownloadedModel } from './sketchfab-storage.js';
+import { renderDownloadedModels } from './model-list-ui.js';
 import * as zipJs from 'https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.7.61/+esm';
 
 let currentPage = 1;

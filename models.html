@@ -49,7 +49,8 @@
     <p>© 2025 CombineVR. All rights reserved.</p>
   </footer>
   <script type="module">
-    import { renderDownloadedModels, getDownloadedModels } from './sketchfab-storage.js';
+    import { renderDownloadedModels } from './model-list-ui.js';
+    import { getDownloadedModels } from './storage.js';
     // Patch renderDownloadedModels to show attribution like search results
     function renderModelsWithAttribution() {
       const downloadedList = document.getElementById('downloaded-models-list');
@@ -96,7 +97,6 @@
   </script>
   <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
   <script type="module" src="aframe-extensions.js"></script>
-  <script type="module" src="model-list-ui.js"></script>
   <script type="module" src="model-import.js"></script>
   <script type="module" src="storage.js"></script>
 </body>

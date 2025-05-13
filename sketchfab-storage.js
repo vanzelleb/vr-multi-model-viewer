@@ -1,2 +1,2 @@
-import { renderDownloadedModels } from './model-list-ui.js';
+// Remove export of renderDownloadedModels, only export storage helpers
 export { getDownloadedModels, saveDownloadedModels, addDownloadedModel } from './storage.js';

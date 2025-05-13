@@ -7,6 +7,8 @@
   padding: 0;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;900&display=swap');
+
 :root {
   --primary-color: #63b3ed;
   --secondary-color: #90cdf4;
@@ -21,8 +23,8 @@
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 3rem;
-  --font-heading: 'DM Sans', sans-serif;
-  --font-body: 'Lato', sans-serif;
+  --font-heading: 'Nunito', sans-serif;
+  --font-body: 'Nunito', sans-serif;
 }
 
 body {
@@ -64,18 +66,17 @@ header h1 {
 }
 
 main {
-  max-width: var(--max-width);
-  margin: var(--spacing-xl) auto;
-  padding: var(--spacing-md);
-  flex: 1;
+  width: 100%;
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .hero {
-  text-align: center;
-  margin-bottom: var(--spacing-xl);
   max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto 2rem auto;
+  text-align: center;
 }
 
 .hero h2 {
@@ -114,36 +115,54 @@ main {
 }
 
 .scene-container {
-  display: grid;
-  grid-template-columns: 2.5fr 1fr;
-  gap: var(--spacing-xl);
-  align-items: start;
-  margin-top: var(--spacing-xl);
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
+  min-height: 600px;
 }
 
 #myEmbeddedScene {
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--bg-darker);
+  flex: 2 1 0;
+  min-width: 0;
   min-height: 600px;
-  background-color: var(--bg-darker);
+  max-width: 100vw;
+  background: var(--bg-darker);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #myEmbeddedScene a-scene {
   width: 100%;
-  height: 600px;
+  height: 70vh;
+  min-height: 400px;
+  max-height: 80vh;
 }
 
 .model-list {
+  flex: 1 0 320px;
+  min-width: 320px;
+  max-width: 400px;
+  height: 70vh;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--bg-darker);
   border-radius: var(--border-radius);
-  padding: var(--spacing-lg);
   box-shadow: var(--shadow);
-  background-color: var(--bg-darker);
+  padding: var(--spacing-lg);
   position: sticky;
-  top: var(--spacing-lg);
-  min-width: 350px;
-  height: fit-content;
+  top: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  z-index: 2;
 }
 
 .model-list h2 {
@@ -453,50 +472,66 @@ header nav a:hover, header nav a.active {
   margin-bottom: 0.5rem;
 }
 
-/* Media Queries */
+/* Responsive layout for all pages */
 @media (max-width: 1024px) {
-  .scene-container {
-    grid-template-columns: 1fr;
+  main {
+    max-width: 98vw;
+    padding: 0.5rem;
   }
-
-  .model-list {
-    position: static;
+  .hero {
+    max-width: 98vw;
+  }
+}
+@media (max-width: 600px) {
+  main {
+    padding: 0.25rem;
+  }
+  .hero {
+    padding: 0.25rem;
   }
 }
 
-@media (max-width: 768px) {
-  :root {
-    --spacing-xl: 2rem;
-    --spacing-lg: 1rem;
-  }
-
-  header h1 {
-    font-size: 2rem;
-  }
-
-  .hero h2 {
-    font-size: 1.75rem;
-  }
-
-  #myEmbeddedScene a-scene {
-    height: 300px;
-  }
-
-  .model-list li {
+/* Responsive layout for My Models page */
+@media (max-width: 1024px) {
+  .scene-container {
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: 2rem;
   }
-
-  .model-actions {
+  .model-list {
     width: 100%;
-    justify-content: stretch;
+    max-width: 100vw;
+    min-width: 0;
+    height: auto;
+    max-height: none;
+    position: static;
+    margin: 0 auto;
   }
-
-  .btn {
-    flex: 1;
+  #myEmbeddedScene a-scene {
+    height: 350px;
   }
+}
+@media (max-width: 600px) {
+  .scene-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .model-list {
+    padding: var(--spacing-md);
+  }
+  #myEmbeddedScene a-scene {
+    height: 220px;
+  }
+}
 
-  .hero {
-    margin-bottom: var(--spacing-lg);
+/* Responsive FAQ layout */
+@media (max-width: 1024px) {
+  .faq-main {
+    max-width: 98vw;
+    padding: 1rem;
+  }
+}
+@media (max-width: 600px) {
+  .faq-main {
+    padding: 0.5rem;
   }
 }
