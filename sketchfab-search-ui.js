@@ -10,9 +10,11 @@ export async function searchSketchfab(query, resultsDiv, page = 1) {
     resultsDiv.innerHTML = '<div>Loading...</div>';
     try {
         const data = await searchSketchfabApi(query, page);
+        console.log('Sketchfab API data.next:', data.next, 'data.previous:', data.previous);
         lastResults = data.results;
         lastNextUrl = data.next || null;
         lastPrevUrl = data.previous || null;
+        console.log('Set lastNextUrl:', lastNextUrl, 'lastPrevUrl:', lastPrevUrl);
         renderSearchResults(resultsDiv);
     } catch (e) {
         resultsDiv.innerHTML = `<div>Error: ${e.message}</div>`;
@@ -141,9 +143,11 @@ async function fetchPage(url, resultsDiv) {
     resultsDiv.innerHTML = '<div>Loading...</div>';
     try {
         const data = await fetchPaginatedResults(url);
+        console.log('FetchPage API data.next:', data.next, 'data.previous:', data.previous);
         lastResults = data.results;
         lastNextUrl = data.next || null;
         lastPrevUrl = data.previous || null;
+        console.log('Set lastNextUrl:', lastNextUrl, 'lastPrevUrl:', lastPrevUrl);
         renderSearchResults(resultsDiv);
     } catch (e) {
         resultsDiv.innerHTML = `<div>Error: ${e.message}</div>`;

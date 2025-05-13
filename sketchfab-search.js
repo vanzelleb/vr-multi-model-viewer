@@ -3,18 +3,16 @@ import { getAccessToken } from './sketchfab-auth.js';
 import { getDownloadedModels, saveDownloadedModels, addDownloadedModel } from './storage.js';
 import * as zipJs from 'https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.7.61/+esm';
 
-let currentPage = 1;
 let lastQuery = '';
 let lastResults = [];
-const MODELS_PER_PAGE = 24;
 let lastNextUrl = null;
 let lastPrevUrl = null;
 
-export async function searchSketchfab(query, resultsDiv, page = 1) {
+export async function searchSketchfab(query, resultsDiv) {
   const token = getAccessToken();
   if (!token) return;
   resultsDiv.innerHTML = '<div>Loading...</div>';
-  const url = `https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true&count=24${page > 1 ? `&cursor=${(page-1)*24}` : ''}`;
+  const url = `https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   });
@@ -57,7 +55,7 @@ function renderSearchResults(resultsDiv) {
         glbListHtml = `
           <div class="sketchfab-glb-item">
             <button class="sketchfab-result-download" data-glb-idx="${glbFiles.length - 1}">Download</button>
-            <span>GLB: ${sizeMB} MB</span>
+            <span>${sizeMB} MB</span>
           </div>
         `;
       }
@@ -67,10 +65,9 @@ function renderSearchResults(resultsDiv) {
     
     el.innerHTML = `
       <img src="${model.thumbnails.images[0].url}" alt="${model.name}" />
-      <div class="sketchfab-result-title">${model.name}</div>
-      <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
       ${glbListHtml}
       <div class="sketchfab-result-attribution">${attribution}</div>
+      
     `;
     // Attach download handlers for each .glb (fix: use addEventListener instead of assigning onclick)
     if (!downloadedUids.has(model.uid)) {
