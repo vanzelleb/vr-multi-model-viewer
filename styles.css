@@ -368,6 +368,17 @@ footer a:hover {
   cursor: pointer;
   margin-top: 0.5rem;
 }
+.skfb-attrib, .skfb-attrib a {
+  color: #ffe066 !important; /* bright yellow for high contrast */
+  font-weight: 500;
+  text-shadow: 0 1px 2px #222;
+}
+
+.sketchfab-result-attribution {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
 
 /* Media Queries */
 @media (max-width: 1024px) {

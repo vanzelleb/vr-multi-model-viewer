@@ -1,34 +1,36 @@
 // Sketchfab search and download logic
 import { getAccessToken } from './sketchfab-auth.js';
 import { addDownloadedModel, renderDownloadedModels } from './sketchfab-storage.js';
+import * as zipJs from 'https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.7.61/+esm';
 
 let currentPage = 1;
 let lastQuery = '';
 let lastResults = [];
 const MODELS_PER_PAGE = 24;
+let lastNextUrl = null;
+let lastPrevUrl = null;
 
 export async function searchSketchfab(query, resultsDiv, page = 1) {
   const token = getAccessToken();
   if (!token) return;
   resultsDiv.innerHTML = '<div>Loading...</div>';
-  const res = await fetch(`https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true`, {
+  const url = `https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true&count=24${page > 1 ? `&cursor=${(page-1)*24}` : ''}`;
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   });
   const data = await res.json();
-  // No additional filter needed, API already restricts to .glb models
   lastQuery = query;
   lastResults = data.results;
-  currentPage = page;
+  lastNextUrl = data.next || null;
+  lastPrevUrl = data.previous || null;
   renderSearchResults(resultsDiv);
 }
 
 function renderSearchResults(resultsDiv) {
   resultsDiv.innerHTML = '';
-  const start = (currentPage - 1) * MODELS_PER_PAGE;
-  const end = start + MODELS_PER_PAGE;
-  const pageResults = lastResults.slice(start, end);
+  const start = 0; // Always start at 0 for paginated API
+  const pageResults = lastResults;
   pageResults.forEach(model => {
-    // Get .glb archives directly from model.archives.glb
     const glbFiles = (model.archives && model.archives.glb) ? model.archives.glb : [];
     // Attribution per Sketchfab standards
     const attribution = `
@@ -71,43 +73,109 @@ function renderSearchResults(resultsDiv) {
       ${sizeInfo}
       <div class="sketchfab-result-attribution">${attribution}</div>
     `;
-    // Attach download handlers for each .glb
+    // Attach download handlers for each .glb (fix: use addEventListener instead of assigning onclick)
     el.querySelectorAll('.sketchfab-result-download').forEach(btn => {
       const idx = parseInt(btn.getAttribute('data-glb-idx'), 10);
-      btn.onclick = () => downloadAndSaveModel(model, glbFiles[idx]);
+      btn.addEventListener('click', () => downloadAndSaveModel(model, glbFiles[idx]));
     });
     resultsDiv.appendChild(el);
   });
-  // Pagination controls
-  const totalPages = Math.ceil(lastResults.length / MODELS_PER_PAGE);
-  if (totalPages > 1) {
-    const nav = document.createElement('div');
-    nav.className = 'sketchfab-pagination';
-    nav.style = 'display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;';
-    if (currentPage > 1) {
-      const prev = document.createElement('button');
-      prev.textContent = 'Previous';
-      prev.onclick = () => {
-        currentPage--;
-        renderSearchResults(resultsDiv);
-      };
-      nav.appendChild(prev);
-    }
-    nav.appendChild(document.createTextNode(`Page ${currentPage} of ${totalPages}`));
-    if (currentPage < totalPages) {
-      const next = document.createElement('button');
-      next.textContent = 'Next';
-      next.onclick = () => {
-        currentPage++;
-        renderSearchResults(resultsDiv);
-      };
-      nav.appendChild(next);
-    }
-    resultsDiv.appendChild(nav);
+  // Pagination controls using API-provided next/previous links
+  const nav = document.createElement('div');
+  nav.className = 'sketchfab-pagination';
+  nav.style = 'display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;';
+  if (lastNextUrl) {
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next';
+    nextBtn.onclick = () => fetchNextPage(lastNextUrl, resultsDiv);
+    nav.appendChild(nextBtn);
   }
+  if (lastPrevUrl) {
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = 'Previous';
+    prevBtn.onclick = () => fetchNextPage(lastPrevUrl, resultsDiv);
+    nav.appendChild(prevBtn);
+  }
+  if (nav.childNodes.length) resultsDiv.appendChild(nav);
+}
+
+async function fetchNextPage(url, resultsDiv) {
+  const token = getAccessToken();
+  if (!token) return;
+  resultsDiv.innerHTML = '<div>Loading...</div>';
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = await res.json();
+  lastResults = data.results;
+  lastNextUrl = data.next || null;
+  lastPrevUrl = data.previous || null;
+  renderSearchResults(resultsDiv);
 }
 
 async function downloadAndSaveModel(model, glbFile) {
+  // Use Sketchfab Download API: https://sketchfab.com/developers/download-api/downloading-models/javascript
+  const token = getAccessToken();
+  if (!token) return;
+  // 1. Get the download info (contains a signed URL)
+  const downloadInfoRes = await fetch(`https://api.sketchfab.com/v3/models/${model.uid}/download`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  if (!downloadInfoRes.ok) {
+    alert('Failed to get download info for this model.');
+    return;
+  }
+  const downloadInfo = await downloadInfoRes.json();
+  const zipUrl = downloadInfo.gltf.url;
+
+  // 2. Download and extract the ZIP archive using zip.js
+  const response = await fetch(zipUrl);
+  if (!response.ok) {
+    alert('Failed to download model archive.');
+    return;
+  }
+  const blob = await response.blob();
+  const reader = new zipJs.ZipReader(new zipJs.BlobReader(blob));
+  const entries = await reader.getEntries();
+  // Map filenames to Blob URLs
+  const fileUrls = {};
+  let sceneGltfEntry = null;
+  for (const entry of entries) {
+    if (!entry.directory) {
+      const data = await entry.getData(new zipJs.BlobWriter());
+      const url = URL.createObjectURL(data);
+      fileUrls[entry.filename] = url;
+      if (entry.filename.endsWith('.gltf')) sceneGltfEntry = entry;
+      if (entry.filename.endsWith('.glb')) sceneGltfEntry = entry;
+    }
+  }
+  let mainUrl = null;
+  if (sceneGltfEntry && sceneGltfEntry.filename.endsWith('.gltf')) {
+    // Patch .gltf file to use blob URLs for buffers/images
+    const gltfText = await sceneGltfEntry.getData(new zipJs.TextWriter());
+    let json = JSON.parse(gltfText);
+    if (json.buffers) {
+      for (let i = 0; i < json.buffers.length; i++) {
+        if (fileUrls[json.buffers[i].uri]) json.buffers[i].uri = fileUrls[json.buffers[i].uri];
+      }
+    }
+    if (json.images) {
+      for (let i = 0; i < json.images.length; i++) {
+        if (fileUrls[json.images[i].uri]) json.images[i].uri = fileUrls[json.images[i].uri];
+      }
+    }
+    const updatedBlob = new Blob([JSON.stringify(json)], { type: 'application/json' });
+    mainUrl = URL.createObjectURL(updatedBlob);
+  } else if (sceneGltfEntry && sceneGltfEntry.filename.endsWith('.glb')) {
+    // Use the .glb file directly
+    mainUrl = fileUrls[sceneGltfEntry.filename];
+  }
+  await reader.close();
+  if (!mainUrl) {
+    alert('Could not extract a main .gltf or .glb file from the archive.');
+    return;
+  }
+  // 3. Save the model info and blob URL to storage
   addDownloadedModel({
     uid: model.uid,
     name: model.name,
@@ -115,7 +183,7 @@ async function downloadAndSaveModel(model, glbFile) {
     artistUrl: model.user.profileUrl || '#',
     license: model.license || 'CC BY 4.0',
     licenseUrl: model.licenseUrl || 'https://creativecommons.org/licenses/by/4.0/',
-    glbUrl: glbFile.url,
+    glbUrl: mainUrl,
     size: glbFile.size
   });
   renderDownloadedModels();
