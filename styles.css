@@ -602,3 +602,167 @@ header nav a:hover, header nav a.active {
     padding: 0.5rem;
   }
 }
+
+.sketchfab-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.sketchfab-result-card {
+  background: var(--bg-darker);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 1.2rem 1rem 1.2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 370px;
+  position: relative;
+  justify-content: flex-start;
+}
+
+.sketchfab-result-thumb {
+  width: 100%;
+  max-width: 200px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  margin-bottom: 0.7rem;
+  background: #222;
+}
+
+.sketchfab-result-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 0.2rem;
+  text-align: center;
+}
+
+.sketchfab-result-artist {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 0.7rem;
+  text-align: center;
+}
+
+.sketchfab-result-download-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  min-height: 48px;
+  justify-content: flex-end;
+}
+
+.sketchfab-glb-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.sketchfab-result-download {
+  background: #63b3ed;
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.3rem;
+  font-size: 0.95rem;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.sketchfab-result-download:hover {
+  filter: brightness(110%);
+}
+
+.sketchfab-result-goto {
+  background: #63b3ed;
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.3rem;
+  font-size: 0.95rem;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.sketchfab-result-attribution {
+  margin-top: auto;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.skfb-attrib, .skfb-attrib a {
+  color: #ffe066 !important;
+  font-weight: 500;
+  text-shadow: 0 1px 2px #222;
+}
+
+.sketchfab-result-size {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.skfb-unavailable {
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+/* Pagination below grid */
+.sketchfab-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.sketchfab-pagination button {
+  font-size: 1rem;
+  padding: 0.4rem 1.2rem;
+  border-radius: var(--border-radius);
+  background: linear-gradient(to right, #4299e1, #805ad5);
+  color: var(--text-light);
+  border: none;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  margin: 0 0.2rem;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.sketchfab-pagination button:hover {
+  background: linear-gradient(to right, #805ad5, #4299e1);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+@media (max-width: 900px) {
+  .sketchfab-results-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+  .sketchfab-result-card {
+    min-height: 320px;
+    padding: 0.7rem 0.5rem 0.7rem 0.5rem;
+  }
+  .sketchfab-result-thumb {
+    max-width: 120px;
+    height: 80px;
+  }
+}

@@ -8,9 +8,7 @@ export function importModelToScene(model, allowMultiple = false) {
   }
 
   // Remove previous imported model entities if not allowMultiple
-  if (!allowMultiple) {
-    scene.querySelectorAll('.imported-model-entity').forEach(e => e.parentNode.removeChild(e));
-  }
+  // (Obsolete: always allow multiple models)
 
   // 1. Create blob URLs for all files
   const blobUrls = {};
