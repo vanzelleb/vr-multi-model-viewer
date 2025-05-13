@@ -398,6 +398,61 @@ footer a:hover {
   box-shadow: 0 6px 8px rgba(0,0,0,0.15);
 }
 
+/* Sticky Header Styles */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--bg-darker);
+  box-shadow: var(--shadow);
+}
+.header-content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+header nav {
+  display: flex;
+  gap: 2rem;
+}
+header nav a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+  transition: background 0.2s, color 0.2s;
+}
+header nav a:hover, header nav a.active {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+/* FAQ Page Styles */
+.faq-main {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--bg-darker);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+.faq-list {
+  margin-top: 2rem;
+}
+.faq-item {
+  margin-bottom: 2rem;
+}
+.faq-item h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
 /* Media Queries */
 @media (max-width: 1024px) {
   .scene-container {

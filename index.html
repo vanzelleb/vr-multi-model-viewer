@@ -15,9 +15,15 @@
 </head>
 
 <body>
-  <header>
-    <div>
+  <header class="sticky-header">
+    <div class="header-content">
       <h1>CombineVR</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="faqs.html">FAQs</a>
+        <a href="models.html">My Models</a>
+        <a href="arvr.html">AR/VR</a>
+      </nav>
     </div>
   </header>
 
@@ -37,35 +43,6 @@
       <button id="sketchfab-search-btn">Search</button>
     </div>
     <div id="sketchfab-search-results"></div>
-    <div class="scene-container">
-      <div id="myEmbeddedScene">
-        <a-scene embedded>
-          <a-sky color="#6EBAA7"></a-sky>
-          <a-assets>
-            <a-asset-item id="model"
-              src="https://cdn.glitch.global/1f292802-7f9c-4368-b80d-6458dbb0ae37/1964.88_armor_for_man_and_horse.glb?v=1746876717267"></a-asset-item>
-          </a-assets>
-          <a-entity id="rig" position="0 0 0">
-            <a-entity id="camera" position="0 1.6 0" camera look-controls wasd-controls></a-entity>
-            <a-entity gltf-model="#piece" position="0 0.8 -0.3" rotation="0 0 0" scale="0.4 0.4 0.4"
-              id="pieceEntity"></a-entity>
-            <a-entity id="leftHand" hand-tracking-controls="hand: left;"></a-entity>
-            <a-entity id="rightHand" hand-tracking-controls="hand: right;"></a-entity>
-            <a-entity meta-touch-controls="hand: left"></a-entity>
-            <a-entity meta-touch-controls="hand: right" thumbstick-logging laser-controls="hand: right"
-              raycaster="lineColor: #fff; lineOpacity: 0.7; far: 10" grabbing scaling teleporting></a-entity>
-          </a-entity>
-          <a-entity resize gltf-model="#model" position="0 0.5 -1.5" rotation="0 -90 0"></a-entity>
-          <a-plane color="#CCC" height="100" width="100" rotation="-90 0 0"></a-plane>
-        </a-scene>
-      </div>
-      <section class="model-list">
-        <h2>Your Downloaded Models</h2>
-        <ul id="downloaded-models-list">
-          <!-- Downloaded models will be rendered here by JS -->
-        </ul>
-      </section>
-    </div>
   </main>
 
   <footer style="margin-top: 3rem; padding: 1.5rem; background-color: #2d3748; text-align: center; color: #a0aec0;">

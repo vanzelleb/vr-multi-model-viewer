@@ -1,0 +1,79 @@
+<!-- My Models Page for CombineVR -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Models - CombineVR</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="sketchfab-storage.js"></script>
+</head>
+<body>
+  <header class="sticky-header">
+    <div class="header-content">
+      <h1>CombineVR</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="faqs.html">FAQs</a>
+        <a href="models.html">My Models</a>
+        <a href="arvr.html">AR/VR</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="model-list">
+      <h2>Your Downloaded Models</h2>
+      <ul id="downloaded-models-list"></ul>
+    </section>
+  </main>
+  <footer style="margin-top: 3rem; padding: 1.5rem; background-color: #2d3748; text-align: center; color: #a0aec0;">
+    <p>© 2025 CombineVR. All rights reserved.</p>
+  </footer>
+  <script type="module">
+    import { renderDownloadedModels, getDownloadedModels } from './sketchfab-storage.js';
+    // Patch renderDownloadedModels to show attribution like search results
+    function renderModelsWithAttribution() {
+      const downloadedList = document.getElementById('downloaded-models-list');
+      const models = getDownloadedModels();
+      downloadedList.innerHTML = '';
+      if (!models.length) {
+        downloadedList.innerHTML = '<li style="color:var(--text-muted);padding:1rem;">No models downloaded yet.</li>';
+        return;
+      }
+      models.forEach((m, idx) => {
+        const li = document.createElement('li');
+        li.className = 'model-item';
+        // Attribution HTML
+        const attribution = `
+          <span class="skfb-attrib">
+            <a href="https://sketchfab.com/3d-models/${m.uid}" target="_blank" rel="noopener">${m.name}</a>
+            by <a href="${m.artistUrl || '#'}" target="_blank" rel="noopener">${m.artist}</a>
+            licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
+          </span>
+        `;
+        li.innerHTML = `
+          <h3 class="model-name">${m.name}</h3>
+          <div class="model-credits">
+            <a href="${m.artistUrl}" class="artist" target="_blank">by ${m.artist}</a>
+            <a href="${m.licenseUrl}" class="license" target="_blank">${m.license}</a>
+            <span class="model-size">${(m.size / (1024 * 1024)).toFixed(2)} MB</span>
+          </div>
+          <div class="model-actions">
+            <button class="btn btn-import">Import</button>
+            <button class="btn btn-remove">Delete</button>
+          </div>
+          <div class="sketchfab-result-attribution">${attribution}</div>
+        `;
+        li.querySelector('.btn-import').onclick = () => import('./sketchfab-viewer.js').then(mod => mod.importModelToScene(m));
+        li.querySelector('.btn-remove').onclick = () => {
+          const updated = models.filter(mm => mm.uid !== m.uid);
+          localStorage.setItem('combinevr-downloaded-models', JSON.stringify(updated));
+          renderModelsWithAttribution();
+        };
+        downloadedList.appendChild(li);
+      });
+    }
+    renderModelsWithAttribution();
+  </script>
+</body>
+</html>

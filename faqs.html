@@ -1,0 +1,51 @@
+<!-- FAQs Page for CombineVR -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQs - CombineVR</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="sticky-header">
+    <div class="header-content">
+      <h1>CombineVR</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="faqs.html">FAQs</a>
+        <a href="models.html">My Models</a>
+        <a href="arvr.html">AR/VR</a>
+      </nav>
+    </div>
+  </header>
+  <main class="faq-main">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <h3>Where do downloaded models get stored?</h3>
+        <p>Downloaded models are stored in your browser's local storage under the key <code>combinevr-downloaded-models</code>. All model files are saved as base64-encoded data and are only accessible from this browser and device.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How do I import a downloaded model into the AR/VR scene?</h3>
+        <p>Go to the <b>My Models</b> page, find your downloaded model, and click the <b>Import</b> button. The model will be loaded into the AR/VR scene on the <b>AR/VR</b> page.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I export or share my downloaded models?</h3>
+        <p>Currently, models are only available in your browser's local storage. Export and sharing features may be added in the future.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Why do I need to log in with Sketchfab?</h3>
+        <p>Logging in with Sketchfab allows you to search and download models that are available for download, following Sketchfab's API and licensing requirements.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Why do some models fail to import?</h3>
+        <p>Some models may have complex dependencies or unsupported formats. Only models with downloadable .gltf/.glb files are supported. If a model fails to import, try another one.</p>
+      </div>
+    </div>
+  </main>
+  <footer style="margin-top: 3rem; padding: 1.5rem; background-color: #2d3748; text-align: center; color: #a0aec0;">
+    <p>© 2025 CombineVR. All rights reserved.</p>
+  </footer>
+</body>
+</html>
