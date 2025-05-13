@@ -23,43 +23,44 @@
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 3rem;
-  --font-heading: 'Nunito', sans-serif;
-  --font-body: 'Nunito', sans-serif;
+  --font-heading: 'Nunito', Arial, Helvetica, sans-serif;
+  --font-body: 'Nunito', Arial, Helvetica, sans-serif;
 }
 
 html, body {
-  font-family: 'Nunito', Arial, Helvetica, sans-serif !important;
+  font-family: var(--font-body) !important;
 }
 
 body {
-  font-family: var(--font-body);
+  font-family: var(--font-body) !important;
   background-color: var(--bg-dark);
   color: var(--text-light);
   line-height: 1.6;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 header {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
   background-color: var(--bg-darker);
   box-shadow: var(--shadow);
 }
 
-header div {
+.header-content {
   max-width: var(--max-width);
   margin: 0 auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  padding: 0 var(--spacing-lg);
 }
 
 header h1 {
-  font-family: var(--font-heading);
-  font-size: 2.75rem;
+  font-family: var(--font-heading) !important;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--primary-color);
   letter-spacing: -1px;
@@ -67,6 +68,15 @@ header h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  margin: 0;
+}
+
+main {
+  width: 100%;
+  max-width: 1400px;
+  margin: 2.5rem auto 0 auto;
+  padding: 1.5rem 1rem 0 1rem;
+  box-sizing: border-box;
 }
 
 .hero {
@@ -76,16 +86,18 @@ header h1 {
 }
 
 .hero h2 {
-  font-family: var(--font-heading);
+  font-family: var(--font-heading) !important;
   font-size: 2.25rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--secondary-color);
   line-height: 1.2;
+  margin-bottom: 0.5rem;
 }
 
 .hero p {
   margin-top: var(--spacing-sm);
   color: var(--text-muted);
+  font-size: 1.1rem;
 }
 
 .connect-button {
@@ -264,7 +276,7 @@ header h1 {
 footer {
   margin-top: var(--spacing-xl);
   padding: var(--spacing-lg);
-  background-color: var(--bg-darker);
+  background-color: var(--bg-dark);
   text-align: center;
   color: var(--text-muted);
 }
@@ -382,6 +394,24 @@ footer a:hover {
   font-weight: 600;
   cursor: pointer;
   margin-top: 0.5rem;
+}
+.sketchfab-result-goto {
+  background: #63b3ed;
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 100%;
+  transition: all 0.2s;
+}
+.sketchfab-result-goto:hover {
+  filter: brightness(110%);
 }
 .skfb-attrib, .skfb-attrib a {
   color: #ffe066 !important; /* bright yellow for high contrast */

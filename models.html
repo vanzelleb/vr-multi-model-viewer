@@ -20,11 +20,11 @@
     </div>
   </header>
   <main>
-    <section class="model-list">
-      <h2>Your Downloaded Models</h2>
-      <ul id="downloaded-models-list"></ul>
-    </section>
     <div class="scene-container">
+      <section class="model-list">
+        <h2>Your Downloaded Models</h2>
+        <ul id="downloaded-models-list"></ul>
+      </section>
       <div id="myEmbeddedScene">
         <a-scene embedded>
           <a-sky color="#6EBAA7"></a-sky>
@@ -49,8 +49,7 @@
     <p>© 2025 CombineVR. All rights reserved.</p>
   </footer>
   <script type="module">
-    import { renderDownloadedModels } from './model-list-ui.js';
-    import { getDownloadedModels } from './storage.js';
+    import { renderDownloadedModels, getDownloadedModels } from './model-list-ui.js';
     // Patch renderDownloadedModels to show attribution like search results
     function renderModelsWithAttribution() {
       const downloadedList = document.getElementById('downloaded-models-list');
@@ -84,7 +83,7 @@
           </div>
           <div class="sketchfab-result-attribution">${attribution}</div>
         `;
-        li.querySelector('.btn-import').onclick = () => import('./sketchfab-viewer.js').then(mod => mod.importModelToScene(m, true));
+        li.querySelector('.btn-import').onclick = () => import('../model-import.js').then(mod => mod.importModelToScene(m, true));
         li.querySelector('.btn-remove').onclick = () => {
           const updated = models.filter(mm => mm.uid !== m.uid);
           localStorage.setItem('combinevr-downloaded-models', JSON.stringify(updated));

@@ -29,7 +29,8 @@ export async function searchSketchfab(query, resultsDiv, page = 1) {
 
 function renderSearchResults(resultsDiv) {
   resultsDiv.innerHTML = '';
-  const start = 0; // Always start at 0 for paginated API
+  const downloadedModels = JSON.parse(localStorage.getItem('combinevr-downloaded-models') || '[]');
+  const downloadedUids = new Set(downloadedModels.map(m => m.uid));
   const pageResults = lastResults;
   pageResults.forEach(model => {
     const glbFiles = (model.archives && model.archives.glb) ? model.archives.glb : [];
@@ -48,12 +49,20 @@ function renderSearchResults(resultsDiv) {
       glbListHtml = '<div class="sketchfab-glb-list">';
       glbFiles.forEach((file, idx) => {
         const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        glbListHtml += `
-          <div class="sketchfab-glb-item">
-            <span>GLB #${idx + 1}: ${sizeMB} MB</span>
-            <button class="sketchfab-result-download" data-glb-idx="${idx}">Download</button>
-          </div>
-        `;
+        if (downloadedUids.has(model.uid)) {
+          glbListHtml += `
+            <div class="sketchfab-glb-item">
+              <button class="sketchfab-result-goto" onclick="window.location.href='models.html'">See My Models</button>
+            </div>
+          `;
+        } else {
+          glbListHtml += `
+            <div class="sketchfab-glb-item">
+              <span>GLB #${idx + 1}: ${sizeMB} MB</span>
+              <button class="sketchfab-result-download" data-glb-idx="${idx}">Download</button>
+            </div>
+          `;
+        }
       });
       glbListHtml += '</div>';
     } else {
@@ -75,17 +84,19 @@ function renderSearchResults(resultsDiv) {
       <div class="sketchfab-result-attribution">${attribution}</div>
     `;
     // Attach download handlers for each .glb (fix: use addEventListener instead of assigning onclick)
-    el.querySelectorAll('.sketchfab-result-download').forEach(btn => {
-      const idx = parseInt(btn.getAttribute('data-glb-idx'), 10);
-      btn.addEventListener('click', () => {
-        downloadAndSaveModel(model, glbFiles[idx]).then(() => {
-          btn.textContent = 'See My Models';
-          btn.classList.remove('sketchfab-result-download');
-          btn.classList.add('sketchfab-result-goto');
-          btn.onclick = () => window.location.href = 'models.html';
+    if (!downloadedUids.has(model.uid)) {
+      el.querySelectorAll('.sketchfab-result-download').forEach(btn => {
+        const idx = parseInt(btn.getAttribute('data-glb-idx'), 10);
+        btn.addEventListener('click', () => {
+          downloadAndSaveModel(model, glbFiles[idx]).then(() => {
+            btn.textContent = 'See My Models';
+            btn.classList.remove('sketchfab-result-download');
+            btn.classList.add('sketchfab-result-goto');
+            btn.onclick = () => window.location.href = 'models.html';
+          });
         });
       });
-    });
+    }
     resultsDiv.appendChild(el);
   });
   // Pagination controls using API-provided next/previous links
