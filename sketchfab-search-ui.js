@@ -74,24 +74,23 @@ window.renderSketchfabSearchResultsUI = function(
   const paginationDiv = document.createElement('div');
   paginationDiv.className = 'sketchfab-pagination';
 
+  // Use only window.fetchPage for pagination
+  function handlePage(url) {
+    if (window.fetchPage) {
+      window.fetchPage(url, resultsDiv);
+    }
+  }
+
   if (prevUrl) {
     const prevBtn = document.createElement('button');
     prevBtn.textContent = 'Previous';
-    prevBtn.onclick = () => {
-      if (window.fetchSketchfabPage) {
-        window.fetchSketchfabPage(prevUrl, resultsDiv);
-      }
-    };
+    prevBtn.onclick = () => handlePage(prevUrl);
     paginationDiv.appendChild(prevBtn);
   }
   if (nextUrl) {
     const nextBtn = document.createElement('button');
     nextBtn.textContent = 'Next';
-    nextBtn.onclick = () => {
-      if (window.fetchSketchfabPage) {
-        window.fetchSketchfabPage(nextUrl, resultsDiv);
-      }
-    };
+    nextBtn.onclick = () => handlePage(nextUrl);
     paginationDiv.appendChild(nextBtn);
   }
   paginationWrapper.appendChild(paginationDiv);
