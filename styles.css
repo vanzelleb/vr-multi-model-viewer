@@ -380,6 +380,24 @@ footer a:hover {
   line-height: 1.5;
 }
 
+/* Fix pagination button size and style */
+.sketchfab-pagination button {
+  font-size: 1rem;
+  padding: 0.4rem 1.2rem;
+  border-radius: var(--border-radius);
+  background: linear-gradient(to right, #4299e1, #805ad5);
+  color: var(--text-light);
+  border: none;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  margin: 0 0.2rem;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.sketchfab-pagination button:hover {
+  background: linear-gradient(to right, #805ad5, #4299e1);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
 /* Media Queries */
 @media (max-width: 1024px) {
   .scene-container {
