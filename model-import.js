@@ -25,40 +25,59 @@ export function importModelToScene(model, allowMultiple = false) {
         const asset = document.createElement('a-asset-item');
         const assetId = model.uid + '-' + btoa(filename).replace(/[^a-zA-Z0-9]/g, '');
         asset.setAttribute('id', assetId);
-        
-        // Handle binary files correctly
-        if (dataUrl.startsWith('data:model/gltf-binary;base64,')) {
-          // For GLB files, keep as is
+        // Patch .gltf file to reference asset IDs for buffers/images
+        if (filename.endsWith('.gltf')) {
+          try {
+            let gltfText = atob(dataUrl.split(',')[1]);
+            let gltfJson = JSON.parse(gltfText);
+            // Patch buffers
+            if (gltfJson.buffers) {
+              gltfJson.buffers.forEach((buf, i) => {
+                if (buf.uri && model.files[buf.uri]) {
+                  buf.uri = model.uid + '-' + btoa(buf.uri).replace(/[^a-zA-Z0-9]/g, '');
+                }
+              });
+            }
+            // Patch images
+            if (gltfJson.images) {
+              gltfJson.images.forEach((img, i) => {
+                if (img.uri && model.files[img.uri]) {
+                  img.uri = model.uid + '-' + btoa(img.uri).replace(/[^a-zA-Z0-9]/g, '');
+                }
+              });
+            }
+            // Re-encode as base64
+            const patchedText = JSON.stringify(gltfJson);
+            const patchedBase64 = btoa(patchedText);
+            const patchedDataUrl = 'data:model/gltf+json;base64,' + patchedBase64;
+            asset.setAttribute('src', patchedDataUrl);
+          } catch (e) {
+            // fallback to original
+            asset.setAttribute('src', dataUrl);
+          }
+        } else if (dataUrl.startsWith('data:model/gltf-binary;base64,')) {
           asset.setAttribute('src', dataUrl);
         } else if (dataUrl.startsWith('data:application/octet-stream;base64,')) {
-          // For binary files, correct the MIME type
           const correctedUrl = dataUrl.replace(
             'data:application/octet-stream;base64,',
             'data:application/gltf-binary;base64,'
           );
           asset.setAttribute('src', correctedUrl);
         } else if (filename.endsWith('.bin')) {
-          // For .bin files without proper MIME type
           const correctedUrl = dataUrl.replace(
-            /^data:[^;]+;base64,/,
-            'data:application/gltf-binary;base64,'
+            /^data:[^;]+;base64,/, 'data:application/gltf-binary;base64,'
           );
           asset.setAttribute('src', correctedUrl);
         } else {
-          // For all other files (like textures), keep original dataUrl
           asset.setAttribute('src', dataUrl);
         }
-        
         asset.setAttribute('data-filename', filename);
         asset.classList.add('imported-model-asset');
-        
-        // Add loading event listener with more detailed error info
         asset.addEventListener('error', (err) => {
           console.error('Failed to load asset:', filename, err);
           console.log('Data URL type:', dataUrl.split(';')[0]);
           throw new Error(`Failed to load asset: ${filename}`);
         });
-        
         assets.appendChild(asset);
       }
     });
