@@ -114,68 +114,89 @@ async function fetchNextPage(url, resultsDiv) {
 }
 
 async function downloadAndSaveModel(model, glbFile) {
-  // Use Sketchfab Download API: https://sketchfab.com/developers/download-api/downloading-models/javascript
+  console.log('Download: Start for model', model.uid, model.name);
   const token = getAccessToken();
-  if (!token) return;
+  if (!token) {
+    console.log('Download: No access token');
+    return;
+  }
   // 1. Get the download info (contains a signed URL)
+  console.log('Download: Fetching download info...');
   const downloadInfoRes = await fetch(`https://api.sketchfab.com/v3/models/${model.uid}/download`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!downloadInfoRes.ok) {
+    console.log('Download: Failed to get download info', downloadInfoRes.status);
     alert('Failed to get download info for this model.');
     return;
   }
   const downloadInfo = await downloadInfoRes.json();
+  console.log('Download: Download info received', downloadInfo);
   const zipUrl = downloadInfo.gltf.url;
 
   // 2. Download and extract the ZIP archive using zip.js
+  console.log('Download: Fetching ZIP archive from', zipUrl);
   const response = await fetch(zipUrl);
   if (!response.ok) {
+    console.log('Download: Failed to download model archive', response.status);
     alert('Failed to download model archive.');
     return;
   }
   const blob = await response.blob();
+  console.log('Download: ZIP archive fetched, size', blob.size);
   const reader = new zipJs.ZipReader(new zipJs.BlobReader(blob));
   const entries = await reader.getEntries();
+  console.log('Download: ZIP entries', entries.map(e => e.filename));
   // Map filenames to Blob URLs
   const fileUrls = {};
   let sceneGltfEntry = null;
   for (const entry of entries) {
     if (!entry.directory) {
+      console.log('Download: Extracting', entry.filename);
       const data = await entry.getData(new zipJs.BlobWriter());
       const url = URL.createObjectURL(data);
       fileUrls[entry.filename] = url;
       if (entry.filename.endsWith('.gltf')) sceneGltfEntry = entry;
       if (entry.filename.endsWith('.glb')) sceneGltfEntry = entry;
+      console.log('Download: Blob URL created for', entry.filename, url);
     }
   }
   let mainUrl = null;
   if (sceneGltfEntry && sceneGltfEntry.filename.endsWith('.gltf')) {
-    // Patch .gltf file to use blob URLs for buffers/images
+    console.log('Download: Patching .gltf file', sceneGltfEntry.filename);
     const gltfText = await sceneGltfEntry.getData(new zipJs.TextWriter());
     let json = JSON.parse(gltfText);
     if (json.buffers) {
       for (let i = 0; i < json.buffers.length; i++) {
-        if (fileUrls[json.buffers[i].uri]) json.buffers[i].uri = fileUrls[json.buffers[i].uri];
+        if (fileUrls[json.buffers[i].uri]) {
+          console.log('Download: Rewriting buffer URI', json.buffers[i].uri, '->', fileUrls[json.buffers[i].uri]);
+          json.buffers[i].uri = fileUrls[json.buffers[i].uri];
+        }
       }
     }
     if (json.images) {
       for (let i = 0; i < json.images.length; i++) {
-        if (fileUrls[json.images[i].uri]) json.images[i].uri = fileUrls[json.images[i].uri];
+        if (fileUrls[json.images[i].uri]) {
+          console.log('Download: Rewriting image URI', json.images[i].uri, '->', fileUrls[json.images[i].uri]);
+          json.images[i].uri = fileUrls[json.images[i].uri];
+        }
       }
     }
     const updatedBlob = new Blob([JSON.stringify(json)], { type: 'application/json' });
     mainUrl = URL.createObjectURL(updatedBlob);
+    console.log('Download: Patched .gltf Blob URL', mainUrl);
   } else if (sceneGltfEntry && sceneGltfEntry.filename.endsWith('.glb')) {
-    // Use the .glb file directly
     mainUrl = fileUrls[sceneGltfEntry.filename];
+    console.log('Download: Using .glb Blob URL', mainUrl);
   }
   await reader.close();
   if (!mainUrl) {
+    console.log('Download: Could not extract a main .gltf or .glb file from the archive.');
     alert('Could not extract a main .gltf or .glb file from the archive.');
     return;
   }
   // 3. Save the model info and blob URL to storage
+  console.log('Download: Saving model to storage', model.uid, mainUrl);
   addDownloadedModel({
     uid: model.uid,
     name: model.name,
@@ -187,4 +208,5 @@ async function downloadAndSaveModel(model, glbFile) {
     size: glbFile.size
   });
   renderDownloadedModels();
+  console.log('Download: Done for model', model.uid);
 }
