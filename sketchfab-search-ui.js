@@ -40,25 +40,32 @@ function renderSearchResults(resultsDiv) {
       </span>
     `;
     const el = document.createElement('div');
-    el.className = 'sketchfab-result-card';
+    el.className = 'sketchfab-result-card-grid';
+    // Only show the smallest GLB file
     let glbHtml = '';
     if (smallestGlb) {
       const sizeMB = (smallestGlb.size / (1024 * 1024)).toFixed(2);
       glbHtml = `
-        <div class="sketchfab-glb-row">
-          <span class="sketchfab-result-size">GLB: ${sizeMB} MB</span>
-          <button class="sketchfab-result-download" data-glb-idx="0">Download</button>
-        </div>
+        <button class="sketchfab-result-download" data-glb-idx="0">Download</button>
+        <div class="sketchfab-result-size">GLB: ${sizeMB} MB</div>
       `;
     } else {
       glbHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
     }
     el.innerHTML = `
-      <img src="${model.thumbnails.images[0].url}" alt="${model.name}" class="sketchfab-result-thumb" />
-      <div class="sketchfab-result-title">${model.name}</div>
-      <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
-      <div class="sketchfab-result-download-row">${glbHtml}</div>
-      <div class="sketchfab-result-attribution">${attribution}</div>
+      <div class="sketchfab-result-thumb-cell">
+        <img src="${model.thumbnails.images[0].url}" alt="${model.name}" class="sketchfab-result-thumb" />
+      </div>
+      <div class="sketchfab-result-title-cell">
+        <div class="sketchfab-result-title">${model.name}</div>
+      </div>
+      <div class="sketchfab-result-artist-cell">
+        <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
+      </div>
+      <div class="sketchfab-result-download-cell">${glbHtml}</div>
+      <div class="sketchfab-result-attribution-cell">
+        <div class="sketchfab-result-attribution">${attribution}</div>
+      </div>
     `;
     // Attach download handler
     if (smallestGlb) {
@@ -79,9 +86,9 @@ function renderSearchResults(resultsDiv) {
             size: smallestGlb.size,
             thumbnail: (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url) || ''
           });
-          el.querySelector('.sketchfab-result_download').textContent = 'See My Models';
-          el.querySelector('.sketchfab-result_download').classList.remove('sketchfab-result-download');
-          el.querySelector('.sketchfab-result_download').classList.add('sketchfab-result-goto');
+          el.querySelector('.sketchfab-result-download').textContent = 'See My Models';
+          el.querySelector('.sketchfab-result-download').classList.remove('sketchfab-result-download');
+          el.querySelector('.sketchfab-result-download').classList.add('sketchfab-result-goto');
           el.querySelector('.sketchfab-result-goto').onclick = () => window.location.href = 'models.html';
         } catch (e) {
           alert('Download failed: ' + e.message);
