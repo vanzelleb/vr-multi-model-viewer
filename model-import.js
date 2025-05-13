@@ -60,7 +60,8 @@ export function importModelToScene(model, allowMultiple = false) {
   // 4. Add the model entity to the scene
   const entity = document.createElement('a-entity');
   entity.setAttribute('class', 'imported-model-entity');
-  entity.setAttribute('position', '0 1 -5');
+  // Ensure model is above the ground plane
+  entity.setAttribute('position', '0 0.5 -3.5');
   entity.setAttribute('resize', {targetSize: 2.0, scaleLimit: 10.0});
   if (mainFileName.endsWith('.gltf')) {
     entity.setAttribute('gltf-model', gltfBlobUrl);
@@ -87,6 +88,22 @@ export function importModelToScene(model, allowMultiple = false) {
     }, 30000);
     entity.addEventListener('model-loaded', () => {
       clearTimeout(timeout);
+      // Ensure model is above the ground plane
+      const mesh = entity.getObject3D('mesh');
+      if (mesh) {
+        mesh.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(mesh);
+        const minY = box.min.y;
+        if (minY < 0) {
+          // Raise the entity so the lowest part is at y=0.05 (slightly above ground)
+          const currentPos = entity.getAttribute('position');
+          entity.setAttribute('position', {
+            x: currentPos.x,
+            y: currentPos.y + Math.abs(minY) + 0.05,
+            z: currentPos.z
+          });
+        }
+      }
       console.log('Model loaded successfully:', model.name);
       if (loadingMessage) loadingMessage.setAttribute('visible', false);
       if (errorMessage) errorMessage.setAttribute('visible', false);

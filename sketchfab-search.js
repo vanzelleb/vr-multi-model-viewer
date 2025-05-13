@@ -1,7 +1,6 @@
 // Sketchfab search and download logic
 import { getAccessToken } from './sketchfab-auth.js';
-import { addDownloadedModel } from './sketchfab-storage.js';
-import { renderDownloadedModels } from './model-list-ui.js';
+import { getDownloadedModels, saveDownloadedModels, addDownloadedModel } from './storage.js';
 import * as zipJs from 'https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.7.61/+esm';
 
 let currentPage = 1;
@@ -90,22 +89,7 @@ function renderSearchResults(resultsDiv) {
     resultsDiv.appendChild(el);
   });
   // Pagination controls using API-provided next/previous links
-  const nav = document.createElement('div');
-  nav.className = 'sketchfab-pagination';
-  nav.style = 'display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;';
-  if (lastNextUrl) {
-    const nextBtn = document.createElement('button');
-    nextBtn.textContent = 'Next';
-    nextBtn.onclick = () => fetchNextPage(lastNextUrl, resultsDiv);
-    nav.appendChild(nextBtn);
-  }
-  if (lastPrevUrl) {
-    const prevBtn = document.createElement('button');
-    prevBtn.textContent = 'Previous';
-    prevBtn.onclick = () => fetchNextPage(lastPrevUrl, resultsDiv);
-    nav.appendChild(prevBtn);
-  }
-  if (nav.childNodes.length) resultsDiv.appendChild(nav);
+  // (Removed duplicate pagination logic; handled in sketchfab-search-ui.js)
 }
 
 async function fetchNextPage(url, resultsDiv) {

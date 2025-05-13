@@ -37,44 +37,42 @@ export function renderDownloadedModels() {
           licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
         </span>
       </div>
-    `;      // Attach event listeners robustly
-      const importBtn = li.querySelector('.btn-import');
-      importBtn.addEventListener('click', async () => {
-        try {
-          // Show loading state
-          const originalText = importBtn.textContent;
-          importBtn.textContent = 'Importing...';
-          importBtn.disabled = true;
-          importBtn.style.opacity = '0.7';
-          
-          console.log('Import button clicked for model:', m.uid, m.name, m);
-          const result = await importModelToScene(m);
-          
-          if (result.success) {
-            // Show success state briefly
-            importBtn.textContent = 'Imported!';
-            importBtn.style.background = '#48bb78'; // Success green
-            setTimeout(() => {
-              importBtn.textContent = originalText;
-              importBtn.style.background = '';
-              importBtn.disabled = false;
-              importBtn.style.opacity = '1';
-            }, 2000);
-          } else {
-            throw new Error(result.error || 'Import failed');
-          }
-        } catch (err) {
-          console.error('Import failed:', err);
-          importBtn.textContent = 'Failed!';
-          importBtn.style.background = '#e53e3e'; // Error red
+    `;    // Attach event listeners robustly
+    const importBtn = li.querySelector('.btn-import');
+    importBtn.addEventListener('click', async () => {
+      try {
+        // Show loading state
+        importBtn.classList.add('loading');
+        importBtn.disabled = true;
+        
+        console.log('Import button clicked for model:', m.uid, m.name, m);
+        const result = await importModelToScene(m);
+        
+        if (result.success) {
+          // Show success state briefly
+          importBtn.textContent = 'Imported!';
+          importBtn.classList.add('success');
           setTimeout(() => {
             importBtn.textContent = 'Import';
-            importBtn.style.background = '';
+            importBtn.classList.remove('success');
+            importBtn.classList.remove('loading');
             importBtn.disabled = false;
-            importBtn.style.opacity = '1';
           }, 2000);
+        } else {
+          throw new Error(result.error || 'Import failed');
         }
-      });
+      } catch (err) {
+        console.error('Import failed:', err);
+        importBtn.textContent = 'Failed!';
+        importBtn.classList.add('error');
+        setTimeout(() => {
+          importBtn.textContent = 'Import';
+          importBtn.classList.remove('error');
+          importBtn.classList.remove('loading');
+          importBtn.disabled = false;
+        }, 2000);
+      }
+    });
     li.querySelector('.btn-remove').addEventListener('click', () => {
       console.log('Delete button clicked for model:', m.uid, m.name);
       const updated = getDownloadedModels().filter(mm => mm.uid !== m.uid);

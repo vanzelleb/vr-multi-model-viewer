@@ -116,7 +116,13 @@ function renderSearchResults(resultsDiv) {
   nav.className = 'sketchfab-pagination';
   nav.setAttribute('role', 'navigation');
   nav.setAttribute('aria-label', 'Search results pagination');
-  
+    if (lastPrevUrl) {
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = 'Previous';
+    prevBtn.setAttribute('aria-label', 'Previous page');
+    prevBtn.onclick = () => fetchPage(lastPrevUrl, resultsDiv);
+    nav.insertBefore(prevBtn, nav.firstChild);
+  }
   if (lastNextUrl) {
     const nextBtn = document.createElement('button');
     nextBtn.textContent = 'Next';
@@ -124,14 +130,7 @@ function renderSearchResults(resultsDiv) {
     nextBtn.onclick = () => fetchPage(lastNextUrl, resultsDiv);
     nav.appendChild(nextBtn);
   }
-  if (lastPrevUrl) {
-    const prevBtn = document.createElement('button');
-    prevBtn.textContent = 'Previous';
-    prevBtn.setAttribute('aria-label', 'Previous page');
-    prevBtn.onclick = () => fetchPage(lastPrevUrl, resultsDiv);
-    nav.insertBefore(prevBtn, nav.firstChild);
-  }
-  
+
   const paginationContainer = document.createElement('div');
   paginationContainer.className = 'sketchfab-pagination-container';
   paginationContainer.appendChild(nav);

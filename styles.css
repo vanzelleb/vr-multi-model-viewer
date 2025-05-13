@@ -868,3 +868,38 @@ header nav a:focus {
   background: var(--primary-color);
   color: #fff;
 }
+
+.model-thumb-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.model-thumb-row img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.model-thumb-row img[onerror] {
+  display: none;
+}
+.model-thumb-row > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Button loading, success, and error states for import */
+.btn-import.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+.btn-import.success {
+  background: #48bb78 !important;
+  color: #fff !important;
+}
+.btn-import.error {
+  background: #e53e3e !important;
+  color: #fff !important;
+}
