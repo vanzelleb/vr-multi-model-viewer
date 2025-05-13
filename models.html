@@ -49,7 +49,8 @@
     <p>© 2025 CombineVR. All rights reserved.</p>
   </footer>
   <script type="module">
-    import { renderDownloadedModels, getDownloadedModels } from './model-list-ui.js';
+    import { renderDownloadedModels } from './model-list-ui.js';
+    import { getDownloadedModels } from './storage.js';
     // Patch renderDownloadedModels to show attribution like search results
     function renderModelsWithAttribution() {
       const downloadedList = document.getElementById('downloaded-models-list');
