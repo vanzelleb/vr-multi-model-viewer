@@ -2,60 +2,45 @@ import { searchSketchfabApi, fetchPaginatedResults, fetchDownloadInfo } from './
 import { extractModelZip } from './sketchfab-download.js';
 import { addDownloadedModel } from './storage.js';
 
-let lastResults = [];
-let lastNextUrl = null;
-let lastPrevUrl = null;
+// Expose a global UI render function for use by sketchfab-search.js
+window.renderSketchfabSearchResultsUI = function(
+  resultsDiv,
+  results,
+  nextUrl,
+  prevUrl,
+  downloadedUids,
+  downloadAndSaveModel
+) {
+  resultsDiv.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'sketchfab-results-grid';
 
-export async function searchSketchfab(query, resultsDiv, page = 1) {
-    resultsDiv.innerHTML = '<div>Loading...</div>';
-    try {
-        const data = await searchSketchfabApi(query, page);
-        console.log('Sketchfab API data.next:', data.next, 'data.previous:', data.previous);
-        lastResults = data.results;
-        lastNextUrl = data.next || null;
-        lastPrevUrl = data.previous || null;
-        console.log('Set lastNextUrl:', lastNextUrl, 'lastPrevUrl:', lastPrevUrl);
-        renderSearchResults(resultsDiv);
-    } catch (e) {
-        resultsDiv.innerHTML = `<div>Error: ${e.message}</div>`;
+  results.forEach(model => {
+    // Find the smallest .glb file
+    let glbFiles = (model.archives && model.archives.glb) ? model.archives.glb : [];
+    let smallestGlb = null;
+    if (glbFiles.length) {
+      smallestGlb = glbFiles.reduce((min, file) => (!min || file.size < min.size) ? file : min, null);
     }
-}
-
-function renderSearchResults(resultsDiv) {
-    resultsDiv.innerHTML = '';
-    const grid = document.createElement('div');
-    grid.className = 'sketchfab-results-grid';
-
-    lastResults.forEach(model => {
-        // Find the smallest .glb file
-        let glbFiles = (model.archives && model.archives.glb) ? model.archives.glb : [];
-        let smallestGlb = null;
-        if (glbFiles.length) {
-            smallestGlb = glbFiles.reduce((min, file) => (!min || file.size < min.size) ? file : min, null);
-        }
-
-        const attribution = `
+    const attribution = `
       <span class="skfb-attrib">
         <a href="https://sketchfab.com/3d-models/${model.slug || model.uid}" target="_blank" rel="noopener">${model.name}</a>
         by <a href="${model.user.profileUrl || '#'}" target="_blank" rel="noopener">${model.user.displayName}</a>
         licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
       </span>
     `;
-
-        const el = document.createElement('div');
-        el.className = 'sketchfab-result-card-grid';
-        let downloadHtml = '';
-
-        if (smallestGlb) {
-            const sizeMB = (smallestGlb.size / (1024 * 1024)).toFixed(2);
-            downloadHtml = `
-        <button class="sketchfab-result-download" data-glb-idx="${glbFiles.indexOf(smallestGlb)}">Download</button>
+    const el = document.createElement('div');
+    el.className = 'sketchfab-result-card-grid';
+    let downloadHtml = '';
+    let sizeMB = smallestGlb ? (smallestGlb.size / (1024 * 1024)).toFixed(2) : '';
+    if (smallestGlb) {
+      downloadHtml = `
+        <button class="sketchfab-result-download" data-glb-idx="${glbFiles.indexOf(smallestGlb)}">${downloadedUids.has(model.uid) ? 'Downloaded' : 'Download'}</button>
       `;
-        } else {
-            downloadHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
-        }
-
-        el.innerHTML = `
+    } else {
+      downloadHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
+    }
+    el.innerHTML = `
       <div class="sketchfab-result-thumb-cell">
         <img src="${model.thumbnails.images[0].url}" alt="${model.name}" class="sketchfab-result-thumb" loading="lazy" />
       </div>
@@ -71,46 +56,57 @@ function renderSearchResults(resultsDiv) {
       </div>
       <div class="sketchfab-result-size">${sizeMB} MB</div>
     `;
-
-        if (smallestGlb) {
-            el.querySelector('.sketchfab-result-download').addEventListener('click', async () => {
-                try {
-                    const btn = el.querySelector('.sketchfab-result-download');
-                    btn.textContent = 'Downloading...';
-                    btn.disabled = true;
-
-                    const downloadInfo = await fetchDownloadInfo(model.uid);
-                    const zipUrl = downloadInfo.gltf.url;
-                    const { fileBase64s, mainFileName } = await extractModelZip(zipUrl);
-
-                    addDownloadedModel({
-                        uid: model.uid,
-                        name: model.name,
-                        artist: model.user.displayName,
-                        artistUrl: model.user.profileUrl || '#',
-                        license: model.license || 'CC BY 4.0',
-                        licenseUrl: model.licenseUrl || 'https://creativecommons.org/licenses/by/4.0/',
-                        files: fileBase64s,
-                        mainFileName,
-                        size: smallestGlb.size,
-                        thumbnail: (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url) || ''
-                    });
-
-                    btn.textContent = 'See My Models';
-                    btn.disabled = false;
-                    btn.classList.remove('sketchfab-result-download');
-                    btn.classList.add('sketchfab-result-goto');
-                    btn.onclick = () => window.location.href = 'models.html';
-                } catch (e) {
-                    alert('Download failed: ' + e.message);
-                    const btn = el.querySelector('.sketchfab-result-download');
-                    btn.textContent = 'Download';
-                    btn.disabled = false;
-                }
-            });
+    if (smallestGlb && !downloadedUids.has(model.uid)) {
+      el.querySelector('.sketchfab-result-download').addEventListener('click', async () => {
+        const btn = el.querySelector('.sketchfab-result-download');
+        btn.textContent = 'Downloading...';
+        btn.disabled = true;
+        try {
+          await downloadAndSaveModel(model, smallestGlb);
+          btn.textContent = 'See My Models';
+          btn.disabled = false;
+          btn.classList.remove('sketchfab-result-download');
+          btn.classList.add('sketchfab-result-goto');
+          btn.onclick = () => window.location.href = 'models.html';
+        } catch (e) {
+          alert('Download failed: ' + e.message);
+          btn.textContent = 'Download';
+          btn.disabled = false;
         }
-        grid.appendChild(el);
-    });
-    resultsDiv.appendChild(grid);
-    // Pagination logic and UI removed; handled in sketchfab-search.js
-}
+      });
+    }
+    grid.appendChild(el);
+  });
+  resultsDiv.appendChild(grid);
+
+  // Pagination controls
+  const paginationDiv = document.createElement('div');
+  paginationDiv.className = 'sketchfab-pagination';
+  paginationDiv.style.display = 'flex';
+  paginationDiv.style.justifyContent = 'center';
+  paginationDiv.style.alignItems = 'center';
+  paginationDiv.style.width = '100%';
+  paginationDiv.style.margin = '2rem 0 0 0';
+
+  if (prevUrl) {
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = 'Previous';
+    prevBtn.onclick = () => {
+      if (window.fetchSketchfabPage) {
+        window.fetchSketchfabPage(prevUrl, resultsDiv);
+      }
+    };
+    paginationDiv.appendChild(prevBtn);
+  }
+  if (nextUrl) {
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next';
+    nextBtn.onclick = () => {
+      if (window.fetchSketchfabPage) {
+        window.fetchSketchfabPage(nextUrl, resultsDiv);
+      }
+    };
+    paginationDiv.appendChild(nextBtn);
+  }
+  resultsDiv.appendChild(paginationDiv);
+};

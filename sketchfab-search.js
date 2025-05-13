@@ -21,98 +21,18 @@ export async function searchSketchfab(query, resultsDiv) {
   lastResults = data.results;
   lastNextUrl = data.next || null;
   lastPrevUrl = data.previous || null;
-  renderSearchResults(resultsDiv);
-}
-
-function renderSearchResults(resultsDiv) {
-  resultsDiv.innerHTML = '';
+  // UI rendering is now handled in sketchfab-search-ui.js
   const downloadedModels = JSON.parse(localStorage.getItem('combinevr-downloaded-models') || '[]');
   const downloadedUids = new Set(downloadedModels.map(m => m.uid));
-  const pageResults = lastResults;
-  pageResults.forEach(model => {
-    const glbFiles = (model.archives && model.archives.glb) ? model.archives.glb : [];
-    // Attribution per Sketchfab standards
-    const attribution = `
-      <span class="skfb-attrib">
-        <a href="https://sketchfab.com/3d-models/${model.slug || model.uid}" target="_blank" rel="noopener">${model.name}</a>
-        by <a href="${model.user.profileUrl || '#'}" target="_blank" rel="noopener">${model.user.displayName}</a>
-        licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
-      </span>
-    `;
-    const el = document.createElement('div');
-    el.className = 'sketchfab-result';
-    let glbListHtml = '';
-    if (glbFiles.length) {
-      const lastFile = glbFiles[glbFiles.length - 1];
-      const sizeMB = (lastFile.size / (1024 * 1024)).toFixed(2);
-      if (downloadedUids.has(model.uid)) {
-        glbListHtml = `
-          <div class="sketchfab-glb-item">
-            <button class="sketchfab-result-goto" onclick="window.location.href='models.html'">See My Models</button>
-          </div>
-        `;
-      } else {
-        glbListHtml = `
-          <div class="sketchfab-glb-item">
-            <button class="sketchfab-result-download" data-glb-idx="${glbFiles.length - 1}">Download</button>
-            <span>${sizeMB} MB</span>
-          </div>
-        `;
-      }
-    } else {
-      glbListHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
-    }
-    
-    el.innerHTML = `
-      <img src="${model.thumbnails.images[0].url}" alt="${model.name}" />
-      ${glbListHtml}
-      <div class="sketchfab-result-attribution">${attribution}</div>
-      
-    `;
-    // Attach download handlers for each .glb (fix: use addEventListener instead of assigning onclick)
-    if (!downloadedUids.has(model.uid)) {
-      el.querySelectorAll('.sketchfab-result-download').forEach(btn => {
-        const idx = parseInt(btn.getAttribute('data-glb-idx'), 10);
-        btn.addEventListener('click', () => {
-          downloadAndSaveModel(model, glbFiles[idx]).then(() => {
-            btn.textContent = 'See My Models';
-            btn.classList.remove('sketchfab-result-download');
-            btn.classList.add('sketchfab-result-goto');
-            btn.onclick = () => window.location.href = 'models.html';
-          });
-        });
-      });
-    }
-    resultsDiv.appendChild(el);
-  });
-
-  // Pagination controls using API-provided next/previous links
-  const nav = document.createElement('div');
-  nav.className = 'sketchfab-pagination';
-nav.classList.add('sketchfab-pagination-controls');
-
-  if (lastPrevUrl) {
-    const prevBtn = document.createElement('button');
-    prevBtn.textContent = 'Previous';
-    prevBtn.className = 'sketchfab-result-download';
-    prevBtn.onclick = async () => {
-      await fetchPage(lastPrevUrl, resultsDiv);
-    };
-    nav.appendChild(prevBtn);
+  if (window.renderSketchfabSearchResultsUI) {
+    window.renderSketchfabSearchResultsUI(resultsDiv, lastResults, lastNextUrl, lastPrevUrl, downloadedUids, downloadAndSaveModel);
+  } else {
+    resultsDiv.innerHTML = '<div>UI module not loaded.</div>';
   }
-  if (lastNextUrl) {
-    const nextBtn = document.createElement('button');
-    nextBtn.textContent = 'Next';
-    nextBtn.className = 'sketchfab-result-download';
-    nextBtn.onclick = async () => {
-      await fetchPage(lastNextUrl, resultsDiv);
-    };
-    nav.appendChild(nextBtn);
-  }
-  if (nav.childNodes.length) resultsDiv.appendChild(nav);
 }
 
-async function downloadAndSaveModel(model, glbFile) {
+// Only keep downloadAndSaveModel and fetchPage for data logic, not UI
+export async function downloadAndSaveModel(model, glbFile) {
   console.log('Download: Start for model', model.uid, model.name);
   const token = getAccessToken();
   if (!token) {
@@ -202,7 +122,7 @@ async function downloadAndSaveModel(model, glbFile) {
   console.log('Download: Saved model to storage', model.uid, mainFileName, 'with thumbnail', (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url));
 }
 
-async function fetchPage(url, resultsDiv) {
+export async function fetchPage(url, resultsDiv) {
   resultsDiv.innerHTML = '<div>Loading...</div>';
   const token = getAccessToken();
   if (!token) return;
@@ -213,5 +133,12 @@ async function fetchPage(url, resultsDiv) {
   lastResults = data.results;
   lastNextUrl = data.next || null;
   lastPrevUrl = data.previous || null;
-  renderSearchResults(resultsDiv);
+  // UI rendering is now handled in sketchfab-search-ui.js
+  const downloadedModels = JSON.parse(localStorage.getItem('combinevr-downloaded-models') || '[]');
+  const downloadedUids = new Set(downloadedModels.map(m => m.uid));
+  if (window.renderSketchfabSearchResultsUI) {
+    window.renderSketchfabSearchResultsUI(resultsDiv, lastResults, lastNextUrl, lastPrevUrl, downloadedUids, downloadAndSaveModel);
+  } else {
+    resultsDiv.innerHTML = '<div>UI module not loaded.</div>';
+  }
 }
