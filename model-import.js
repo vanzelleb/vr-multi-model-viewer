@@ -60,7 +60,7 @@ export function importModelToScene(model, allowMultiple = false) {
   // 4. Add the model entity to the scene
   const entity = document.createElement('a-entity');
   entity.setAttribute('class', 'imported-model-entity');
-  entity.setAttribute('position', '0 0.5 -1.5');
+  entity.setAttribute('position', '0 0.5 -2.5');
   entity.setAttribute('rotation', '0 -90 0');
   entity.setAttribute('resize', {targetSize: 2.0, scaleLimit: 10.0});
   if (mainFileName.endsWith('.gltf')) {

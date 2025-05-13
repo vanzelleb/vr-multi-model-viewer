@@ -47,7 +47,7 @@ function renderSearchResults(resultsDiv) {
       const sizeMB = (smallestGlb.size / (1024 * 1024)).toFixed(2);
       glbHtml = `
         <button class="sketchfab-result-download" data-glb-idx="0">Download</button>
-        <div class="sketchfab-result-size">GLB: ${sizeMB} MB</div>
+        <div class="sketchfab-result-size">${sizeMB} MB</div>
       `;
     } else {
       glbHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
@@ -99,7 +99,7 @@ function renderSearchResults(resultsDiv) {
   });
   resultsDiv.appendChild(grid);
 
-  // Pagination controls below the grid
+  // Pagination controls below the grid, Previous left of Next
   const nav = document.createElement('div');
   nav.className = 'sketchfab-pagination';
   nav.style = 'display:flex;justify-content:center;gap:1rem;margin-top:1.5rem;';
