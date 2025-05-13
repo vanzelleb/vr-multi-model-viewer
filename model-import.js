@@ -19,24 +19,47 @@ export function importModelToScene(model, allowMultiple = false) {
     if (!allowMultiple) {
       scene.querySelectorAll('.imported-model-entity').forEach(e => e.parentNode.removeChild(e));
       assets.querySelectorAll('.imported-model-asset').forEach(e => assets.removeChild(e));
-    }
-
-    // Add all files as <a-asset-item> if not already present
+    }    // Add all files as <a-asset-item> if not already present
     Object.entries(model.files).forEach(([filename, dataUrl]) => {
       if (!assets.querySelector(`[data-filename="${filename}"]`)) {
         const asset = document.createElement('a-asset-item');
         const assetId = model.uid + '-' + btoa(filename).replace(/[^a-zA-Z0-9]/g, '');
         asset.setAttribute('id', assetId);
-        asset.setAttribute('src', dataUrl);
+        
+        // Handle binary files correctly
+        if (dataUrl.startsWith('data:model/gltf-binary;base64,')) {
+          // For GLB files, keep as is
+          asset.setAttribute('src', dataUrl);
+        } else if (dataUrl.startsWith('data:application/octet-stream;base64,')) {
+          // For binary files, correct the MIME type
+          const correctedUrl = dataUrl.replace(
+            'data:application/octet-stream;base64,',
+            'data:application/gltf-binary;base64,'
+          );
+          asset.setAttribute('src', correctedUrl);
+        } else if (filename.endsWith('.bin')) {
+          // For .bin files without proper MIME type
+          const correctedUrl = dataUrl.replace(
+            /^data:[^;]+;base64,/,
+            'data:application/gltf-binary;base64,'
+          );
+          asset.setAttribute('src', correctedUrl);
+        } else {
+          // For all other files (like textures), keep original dataUrl
+          asset.setAttribute('src', dataUrl);
+        }
+        
         asset.setAttribute('data-filename', filename);
         asset.classList.add('imported-model-asset');
-        assets.appendChild(asset);
         
-        // Add loading event listener
+        // Add loading event listener with more detailed error info
         asset.addEventListener('error', (err) => {
           console.error('Failed to load asset:', filename, err);
+          console.log('Data URL type:', dataUrl.split(';')[0]);
           throw new Error(`Failed to load asset: ${filename}`);
         });
+        
+        assets.appendChild(asset);
       }
     });
 
