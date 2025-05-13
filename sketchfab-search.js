@@ -147,66 +147,80 @@ async function downloadAndSaveModel(model, glbFile) {
   const reader = new zipJs.ZipReader(new zipJs.BlobReader(blob));
   const entries = await reader.getEntries();
   console.log('Download: ZIP entries', entries.map(e => e.filename));
-  // Map filenames to Blob URLs
-  const fileUrls = {};
+  // Map filenames to Blobs
+  const fileBlobs = {};
   let sceneGltfEntry = null;
+  let sceneGlbEntry = null;
   for (const entry of entries) {
     if (!entry.directory) {
       console.log('Download: Extracting', entry.filename);
       const data = await entry.getData(new zipJs.BlobWriter());
-      const url = URL.createObjectURL(data);
-      fileUrls[entry.filename] = url;
+      fileBlobs[entry.filename] = data;
       if (entry.filename.endsWith('.gltf')) sceneGltfEntry = entry;
-      if (entry.filename.endsWith('.glb')) sceneGltfEntry = entry;
-      console.log('Download: Blob URL created for', entry.filename, url);
+      if (entry.filename.endsWith('.glb')) sceneGlbEntry = entry;
+      console.log('Download: Blob created for', entry.filename, data);
     }
   }
-  let mainUrl = null;
-  if (sceneGltfEntry && sceneGltfEntry.filename.endsWith('.gltf')) {
+  let mainFile = null;
+  let mainFileName = null;
+  if (sceneGltfEntry) {
     console.log('Download: Patching .gltf file', sceneGltfEntry.filename);
     const gltfText = await sceneGltfEntry.getData(new zipJs.TextWriter());
     let json = JSON.parse(gltfText);
     if (json.buffers) {
       for (let i = 0; i < json.buffers.length; i++) {
-        if (fileUrls[json.buffers[i].uri]) {
-          console.log('Download: Rewriting buffer URI', json.buffers[i].uri, '->', fileUrls[json.buffers[i].uri]);
-          json.buffers[i].uri = fileUrls[json.buffers[i].uri];
+        if (fileBlobs[json.buffers[i].uri]) {
+          console.log('Download: Rewriting buffer URI', json.buffers[i].uri);
+          json.buffers[i].uri = json.buffers[i].uri; // Keep the filename for later
         }
       }
     }
     if (json.images) {
       for (let i = 0; i < json.images.length; i++) {
-        if (fileUrls[json.images[i].uri]) {
-          console.log('Download: Rewriting image URI', json.images[i].uri, '->', fileUrls[json.images[i].uri]);
-          json.images[i].uri = fileUrls[json.images[i].uri];
+        if (fileBlobs[json.images[i].uri]) {
+          console.log('Download: Rewriting image URI', json.images[i].uri);
+          json.images[i].uri = json.images[i].uri; // Keep the filename for later
         }
       }
     }
     const updatedBlob = new Blob([JSON.stringify(json)], { type: 'application/json' });
-    mainUrl = URL.createObjectURL(updatedBlob);
-    console.log('Download: Patched .gltf Blob URL', mainUrl);
-  } else if (sceneGltfEntry && sceneGltfEntry.filename.endsWith('.glb')) {
-    mainUrl = fileUrls[sceneGltfEntry.filename];
-    console.log('Download: Using .glb Blob URL', mainUrl);
+    mainFile = updatedBlob;
+    mainFileName = sceneGltfEntry.filename;
+    fileBlobs[mainFileName] = updatedBlob;
+    console.log('Download: Patched .gltf Blob', mainFileName, mainFile);
+  } else if (sceneGlbEntry) {
+    mainFile = fileBlobs[sceneGlbEntry.filename];
+    mainFileName = sceneGlbEntry.filename;
+    console.log('Download: Using .glb Blob', mainFileName, mainFile);
   }
   await reader.close();
-  if (!mainUrl) {
+  if (!mainFile || !mainFileName) {
     console.log('Download: Could not extract a main .gltf or .glb file from the archive.');
     alert('Could not extract a main .gltf or .glb file from the archive.');
     return;
   }
-  // 3. Save the model info and blob URL to storage
-  console.log('Download: Saving model to storage', model.uid, mainUrl);
-  addDownloadedModel({
-    uid: model.uid,
-    name: model.name,
-    artist: model.user.displayName,
-    artistUrl: model.user.profileUrl || '#',
-    license: model.license || 'CC BY 4.0',
-    licenseUrl: model.licenseUrl || 'https://creativecommons.org/licenses/by/4.0/',
-    glbUrl: mainUrl,
-    size: glbFile.size
-  });
-  renderDownloadedModels();
+  // 3. Save the model info and the main file as a base64 string in localStorage
+  const reader2 = new FileReader();
+  reader2.onload = function() {
+    const base64 = reader2.result;
+    addDownloadedModel({
+      uid: model.uid,
+      name: model.name,
+      artist: model.user.displayName,
+      artistUrl: model.user.profileUrl || '#',
+      license: model.license || 'CC BY 4.0',
+      licenseUrl: model.licenseUrl || 'https://creativecommons.org/licenses/by/4.0/',
+      glbFileName: mainFileName,
+      glbBase64: base64,
+      size: glbFile.size
+    });
+    renderDownloadedModels();
+    console.log('Download: Saved model to storage', model.uid, mainFileName);
+  };
+  reader2.onerror = function(e) {
+    console.log('Download: Error reading blob as base64', e);
+    alert('Failed to save model file.');
+  };
+  reader2.readAsDataURL(mainFile);
   console.log('Download: Done for model', model.uid);
 }
