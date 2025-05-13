@@ -1,6 +1,4 @@
-import { searchSketchfabApi, fetchPaginatedResults, fetchDownloadInfo } from './sketchfab-api.js';
-import { extractModelZip } from './sketchfab-download.js';
-import { addDownloadedModel } from './storage.js';
+// Remove unused imports
 
 // Expose a global UI render function for use by sketchfab-search.js
 window.renderSketchfabSearchResultsUI = function(
@@ -42,8 +40,6 @@ window.renderSketchfabSearchResultsUI = function(
     }
     el.innerHTML = `
       <img src="${model.thumbnails.images[0].url}" alt="${model.name}" class="sketchfab-result-thumb" loading="lazy" />
-      <div class="sketchfab-result-title">${model.name}</div>
-      <div class="sketchfab-result-artist">by ${model.user.displayName}</div>
       <div class="sketchfab-result-download-cell">${downloadHtml}</div>
       <div class="sketchfab-result-attribution">${attribution}</div>
       <div class="sketchfab-result-size">${sizeMB} MB</div>
@@ -74,11 +70,6 @@ window.renderSketchfabSearchResultsUI = function(
   // Pagination controls
   const paginationDiv = document.createElement('div');
   paginationDiv.className = 'sketchfab-pagination';
-  paginationDiv.style.display = 'flex';
-  paginationDiv.style.justifyContent = 'center';
-  paginationDiv.style.alignItems = 'center';
-  paginationDiv.style.width = '100%';
-  paginationDiv.style.margin = '2rem 0 0 0';
 
   if (prevUrl) {
     const prevBtn = document.createElement('button');
