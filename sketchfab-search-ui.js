@@ -1,4 +1,5 @@
-// Remove unused imports
+// Import fetchPage directly for modularity and clarity
+import { fetchPage } from './sketchfab-search.js';
 
 // Expose a global UI render function for use by sketchfab-search.js
 window.renderSketchfabSearchResultsUI = function(
@@ -67,33 +68,33 @@ window.renderSketchfabSearchResultsUI = function(
   });
   resultsDiv.appendChild(grid);
 
-  // Pagination controls in a full-width wrapper div (no inline styles)
+  // Pagination controls in a full-width wrapper div
   const paginationWrapper = document.createElement('div');
   paginationWrapper.className = 'sketchfab-pagination-wrapper';
 
   const paginationDiv = document.createElement('div');
   paginationDiv.className = 'sketchfab-pagination';
 
-  // Use only window.fetchPage for pagination
-  function handlePage(url, label) {
-    console.log('Pagination button clicked:', label, url);
-    if (window.fetchPage) {
-      window.fetchPage(url, resultsDiv);
-    } else {
-      console.warn('window.fetchPage is not defined');
-    }
-  }
-
   if (prevUrl) {
     const prevBtn = document.createElement('button');
     prevBtn.textContent = 'Previous';
-    prevBtn.onclick = () => handlePage(prevUrl, 'Previous');
+    prevBtn.id = 'sketchfab-pagination-prev';
+    prevBtn.setAttribute('aria-label', 'Previous page');
+    prevBtn.addEventListener('click', () => {
+      console.log('Pagination button clicked: Previous', prevUrl);
+      fetchPage(prevUrl, resultsDiv);
+    });
     paginationDiv.appendChild(prevBtn);
   }
   if (nextUrl) {
     const nextBtn = document.createElement('button');
     nextBtn.textContent = 'Next';
-    nextBtn.onclick = () => handlePage(nextUrl, 'Next');
+    nextBtn.id = 'sketchfab-pagination-next';
+    nextBtn.setAttribute('aria-label', 'Next page');
+    nextBtn.addEventListener('click', () => {
+      console.log('Pagination button clicked: Next', nextUrl);
+      fetchPage(nextUrl, resultsDiv);
+    });
     paginationDiv.appendChild(nextBtn);
   }
   paginationWrapper.appendChild(paginationDiv);
