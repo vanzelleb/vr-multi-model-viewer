@@ -75,22 +75,25 @@ window.renderSketchfabSearchResultsUI = function(
   paginationDiv.className = 'sketchfab-pagination';
 
   // Use only window.fetchPage for pagination
-  function handlePage(url) {
+  function handlePage(url, label) {
+    console.log('Pagination button clicked:', label, url);
     if (window.fetchPage) {
       window.fetchPage(url, resultsDiv);
+    } else {
+      console.warn('window.fetchPage is not defined');
     }
   }
 
   if (prevUrl) {
     const prevBtn = document.createElement('button');
     prevBtn.textContent = 'Previous';
-    prevBtn.onclick = () => handlePage(prevUrl);
+    prevBtn.onclick = () => handlePage(prevUrl, 'Previous');
     paginationDiv.appendChild(prevBtn);
   }
   if (nextUrl) {
     const nextBtn = document.createElement('button');
     nextBtn.textContent = 'Next';
-    nextBtn.onclick = () => handlePage(nextUrl);
+    nextBtn.onclick = () => handlePage(nextUrl, 'Next');
     paginationDiv.appendChild(nextBtn);
   }
   paginationWrapper.appendChild(paginationDiv);

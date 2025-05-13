@@ -123,9 +123,11 @@ export async function downloadAndSaveModel(model, glbFile) {
 }
 
 export async function fetchPage(url, resultsDiv) {
+  console.log('fetchPage called with url:', url);
   resultsDiv.innerHTML = '<div>Loading...</div>';
   const token = getAccessToken();
   if (!token) return;
+  console.log('fetchPage: Fetching API:', url);
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   });
@@ -137,6 +139,7 @@ export async function fetchPage(url, resultsDiv) {
   const downloadedModels = JSON.parse(localStorage.getItem('combinevr-downloaded-models') || '[]');
   const downloadedUids = new Set(downloadedModels.map(m => m.uid));
   if (window.renderSketchfabSearchResultsUI) {
+    console.log('fetchPage: Rendering UI with new results');
     window.renderSketchfabSearchResultsUI(resultsDiv, lastResults, lastNextUrl, lastPrevUrl, downloadedUids, downloadAndSaveModel);
   } else {
     resultsDiv.innerHTML = '<div>UI module not loaded.</div>';
