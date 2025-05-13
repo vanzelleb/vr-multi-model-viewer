@@ -92,20 +92,6 @@ function renderSearchResults(resultsDiv) {
   // (Removed duplicate pagination logic; handled in sketchfab-search-ui.js)
 }
 
-async function fetchNextPage(url, resultsDiv) {
-  const token = getAccessToken();
-  if (!token) return;
-  resultsDiv.innerHTML = '<div>Loading...</div>';
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const data = await res.json();
-  lastResults = data.results;
-  lastNextUrl = data.next || null;
-  lastPrevUrl = data.previous || null;
-  renderSearchResults(resultsDiv);
-}
-
 async function downloadAndSaveModel(model, glbFile) {
   console.log('Download: Start for model', model.uid, model.name);
   const token = getAccessToken();

@@ -19,10 +19,10 @@ export function renderDownloadedModels() {
     const li = document.createElement('li');
     li.className = 'model-item';
     li.innerHTML = `
-      <div class="model-thumb-row" style="display:flex;align-items:center;gap:1rem;">
-        <img src="${thumbnail}" alt="${m.name}" style="width:64px;height:64px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'" />
-        <div style="flex:1;display:flex;flex-direction:column;gap:2px;">
-          <h3 class="model-name">${m.name}</h3>
+      <div class="model-thumb-row">
+        <img src="${thumbnail}" alt="${m.name}" class="model-thumbnail" onerror="this.style.display='none'" />
+        <div class="model-info">
+          <h3 class="model-name"><a href="https://sketchfab.com/3d-models/${m.uid}" target="_blank" rel="noopener">${m.name}</a></h3>
           <span class="model-size">${(m.size / (1024 * 1024)).toFixed(2)} MB</span>
         </div>
       </div>
@@ -32,12 +32,11 @@ export function renderDownloadedModels() {
       </div>
       <div class="sketchfab-result-attribution">
         <span class="skfb-attrib">
-          <a href="https://sketchfab.com/3d-models/${m.uid}" target="_blank" rel="noopener">${m.name}</a>
-          by <a href="${artistUrl}" target="_blank" rel="noopener">${m.artist}</a>
+          By <a href="${artistUrl}" target="_blank" rel="noopener">${m.artist}</a>
           licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
         </span>
       </div>
-    `;    // Attach event listeners robustly
+    `;
     const importBtn = li.querySelector('.btn-import');
     importBtn.addEventListener('click', async () => {
       try {
