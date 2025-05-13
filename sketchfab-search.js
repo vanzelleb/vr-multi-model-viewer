@@ -76,7 +76,14 @@ function renderSearchResults(resultsDiv) {
     // Attach download handlers for each .glb (fix: use addEventListener instead of assigning onclick)
     el.querySelectorAll('.sketchfab-result-download').forEach(btn => {
       const idx = parseInt(btn.getAttribute('data-glb-idx'), 10);
-      btn.addEventListener('click', () => downloadAndSaveModel(model, glbFiles[idx]));
+      btn.addEventListener('click', () => {
+        downloadAndSaveModel(model, glbFiles[idx]).then(() => {
+          btn.textContent = 'See My Models';
+          btn.classList.remove('sketchfab-result-download');
+          btn.classList.add('sketchfab-result-goto');
+          btn.onclick = () => window.location.href = 'models.html';
+        });
+      });
     });
     resultsDiv.appendChild(el);
   });
@@ -199,6 +206,5 @@ async function downloadAndSaveModel(model, glbFile) {
     mainFileName,
     size: glbFile.size
   });
-  renderDownloadedModels();
   console.log('Download: Saved model to storage', model.uid, mainFileName);
 }
