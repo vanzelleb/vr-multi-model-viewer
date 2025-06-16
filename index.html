@@ -13,24 +13,27 @@
   <script type="module" src="sketchfab-api.js"></script>
   <script type="module" src="sketchfab-download.js"></script>
   <script type="module" src="storage.js"></script>
+  <script>
+    !function (t, e) { var o, n, p, r; e.__SV || (window.posthog = e, e._i = [], e.init = function (i, s, a) { function g(t, e) { var o = e.split("."); 2 == o.length && (t = t[o[0]], e = o[1]), t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } } (p = t.createElement("script")).type = "text/javascript", p.crossOrigin = "anonymous", p.async = !0, p.src = s.api_host.replace(".i.posthog.com", "-assets.i.posthog.com") + "/static/array.js", (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r); var u = e; for (void 0 !== a ? u = e[a] = [] : a = "posthog", u.people = u.people || [], u.toString = function (t) { var e = "posthog"; return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e }, u.people.toString = function () { return u.toString(1) + ".people (stub)" }, o = "init Ie Ts Ms Ee Es Rs capture Ge calculateEventProperties Os register register_once register_for_session unregister unregister_for_session js getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty Ds Fs createPersonProfile Ls Ps opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing Cs debug I As getPageViewId captureTraceFeedback captureTraceMetric".split(" "), n = 0; n < o.length; n++)g(u, o[n]); e._i.push([i, s, a]) }, e.__SV = 1) }(document, window.posthog || []);
+    posthog.init('phc_BDMGKDZ053hFLSqvyO5KXsmNOIboTzL4miHGHIk9gQl', {
+      api_host: 'https://eu.i.posthog.com',
+      defaults: '2025-05-24',
+      person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
+    })
+  </script>
 </head>
 
 <body>
   <header class="sticky-header">
     <div class="header-content">
       <h1>CombineVR</h1>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="faqs.html">FAQs</a>
-        <a href="my-models.html">My Models</a>
-      </nav>
     </div>
   </header>
 
   <main>
     <div class="hero">
       <h2>Explore. Interact.</h2>
-      <p>Import multiple 3D models from Sketchfab and interact with them in VR/AR. To get started, login to Sketchfab to
+      <p>Import multiple 3D models from Sketchfab and interact with them in VR. To get started, login to Sketchfab to
         browse and import your favorite 3D models.</p>
     </div>
 
@@ -45,6 +48,89 @@
       <button id="sketchfab-search-btn">Search</button>
     </div>
     <div id="sketchfab-search-results"></div>
+
+    <div class="scene-container improved-ui">
+      <section class="model-list" aria-label="Downloaded Models">
+        <h2>Downloaded Models</h2>
+        <ul id="downloaded-models-list"></ul>
+      </section>
+      <div id="myEmbeddedScene" class="scene-card">
+        <a-scene embedded>
+          <!-- Sky with simple blue color -->
+          <a-sky color="#87ceeb"></a-sky>
+          <a-assets>
+            <img id="gridTexture" src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r146/examples/textures/grid.png"
+              crossorigin="anonymous" />
+            <!-- Only add asset items dynamically when models are imported -->
+          </a-assets> <!-- Transparent mesh-textured ground plane -->
+          <a-plane id="ground" src="#gridTexture" opacity="0.3" transparent="true" repeat="200 200" width="100" height="100"
+            rotation="-90 0 0"
+            material="side: double; transparent: true; opacity: 0.3; metalness: 0.1; roughness: 0.8;"></a-plane>
+          <a-entity id="rig" position="0 0 0">
+            <a-entity id="camera" position="0 1.6 0" camera look-controls wasd-controls></a-entity>
+            <a-entity id="leftHand" hand-tracking-controls="hand: left;"></a-entity>
+            <a-entity id="rightHand" hand-tracking-controls="hand: right;"></a-entity>
+            <a-entity meta-touch-controls="hand: left"></a-entity>
+            <a-entity meta-touch-controls="hand: right" thumbstick-logging laser-controls="hand: right"
+              raycaster="lineColor: #fff; lineOpacity: 0.7; far: 10" grabbing scaling teleporting></a-entity>
+          </a-entity>
+          <a-entity resize gltf-model="#model" position="0 0.5 -1.5" rotation="0 -90 0"></a-entity>
+          <!-- Model loading feedback messages --> <a-entity id="loadingMessage"
+            text="value: Loading model...; color: #4299e1; align: center; width: 3" position="0 2 -2" scale="1.5 1.5 1.5"
+            look-at-camera visible="false"></a-entity>
+          <a-entity id="errorMessage" text="value: Error loading model; color: #e53e3e; align: center; width: 3"
+            position="0 2 -2" scale="1.5 1.5 1.5" look-at-camera visible="false"></a-entity>
+        </a-scene>
+      </div>
+    </div>
+
+    <div class="faq-main">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <h3>Why do I need to log in with Sketchfab?</h3>
+          <p>Logging in with Sketchfab allows you to search and download models that are available for download, following
+            Sketchfab's API and licensing requirements.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Where do downloaded models get stored?</h3>
+          <p>Downloaded models are stored in your browser's storage. All model files are saved as base64-encoded data and
+            are only accessible from this browser and device.</p>
+        </div>
+        <div class="faq-item">
+          <h3>How do I import a downloaded model into the VR scene?</h3>
+          <p>Go to the <b>My Models</b> page, find your downloaded model, and click the <b>Import</b> button. The model
+            will be loaded into the VR scene.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Can I export or share my downloaded models?</h3>
+          <p>Currently, models are only available in your browser's storage. Export and sharing features may be added in
+            the future.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Why do some models fail to import?</h3>
+          <p>Some models may have complex dependencies or unsupported formats. Only models with downloadable .gltf/.glb
+            files are supported. If a model fails to import, try another one.</p>
+        </div>
+        <div class="faq-item">
+          <h3>Why does the search not find a certain model?</h3>
+          <p>
+            CombineVR only shows models with licenses that allow commercial use. Supported licenses include:
+          <ul>
+            <li>CC Attribution (by)</li>
+            <li>CC Attribution-ShareAlike (by-sa)</li>
+            <li>CC Attribution-NoDerivs (by-nd)</li>
+            <li>CC0 Public Domain (cc0)</li>
+            <li>Free Standard (free-st)</li>
+            <li>Standard (st)</li>
+          </ul>
+          Models with non-commercial or editorial licenses are not shown in search results. If you can't find a specific
+          model, it may be due to its
+          license restrictions.
+          </p>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer style="margin-top: 3rem; padding: 1.5rem; background-color: #2d3748; text-align: center; color: #a0aec0;">
@@ -57,6 +143,7 @@
   <script type="module">
     import { handleOAuthRedirect, loginWithSketchfab } from './sketchfab-auth.js';
     import { searchSketchfab } from './sketchfab-search.js';
+    import {renderDownloadedModels} from './model-list-ui.js';
 
     function showSearch() {
       document.getElementById('sketchfab-login-container').style.display = 'none';
@@ -88,6 +175,7 @@
           if (e.key === 'Enter') doSearch();
         });
       }
+      renderDownloadedModels();
     });
   </script>
 </body>

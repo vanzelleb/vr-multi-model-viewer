@@ -56,7 +56,7 @@ window.renderSketchfabSearchResultsUI = function(
           btn.disabled = false;
           btn.classList.remove('sketchfab-result-download');
           btn.classList.add('sketchfab-result-goto');
-          btn.onclick = () => window.location.href = 'my-models.html';
+          btn.onclick = () => window.location.href = 'index.html';
         } catch (e) {
           alert('Download failed: ' + e.message);
           btn.textContent = 'Download';
@@ -100,14 +100,13 @@ window.renderSketchfabSearchResultsUI = function(
   paginationWrapper.appendChild(paginationDiv);
   resultsDiv.appendChild(paginationWrapper);
 
-  // Change Downloaded button to 'My Models' and style as outlined
   Array.from(document.querySelectorAll('.sketchfab-result-download')).forEach(btn => {
     if (btn.textContent === 'Downloaded') {
       btn.textContent = 'My Models';
       btn.classList.remove('sketchfab-result-download');
       btn.classList.add('sketchfab-result-mymodels');
       btn.disabled = false;
-      btn.onclick = () => window.location.href = 'my-models.html';
+      btn.onclick = () => window.location.href = 'index.html';
     }
   });
 };

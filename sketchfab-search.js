@@ -11,10 +11,6 @@ let lastPrevUrl = null;
 export async function searchSketchfab(query, resultsDiv) {
   const token = getAccessToken();
   const COMMERCIAL_LICENSES = ['by', 'by-sa', 'by-nd', 'cc0', 'free-st', 'st'];
- 
-
-  // Use commercialResults instead of data.results for your UI rendering
-  lastResults = commercialResults;
   if (!token) return;
   resultsDiv.innerHTML = '<div>Loading...</div>';
   const url = `https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true`;
