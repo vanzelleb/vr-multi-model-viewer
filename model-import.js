@@ -61,8 +61,17 @@ export function importModelToScene(model, allowMultiple = false) {
   const entity = document.createElement('a-entity');
   entity.setAttribute('class', 'imported-model-entity');
   // Ensure model is above the ground plane
-  entity.setAttribute('position', '0 0.5 -3.5');
-  entity.setAttribute('resize', {targetSize: 2.0, scaleLimit: 10.0});
+  // Use easter egg position/scale if present
+  if (model.easterEggPosition) {
+    entity.setAttribute('position', model.easterEggPosition);
+  } else {
+    entity.setAttribute('position', '0 0.5 -3.5');
+  }
+  if (model.easterEggScale) {
+    entity.setAttribute('scale', model.easterEggScale);
+  } else {
+    entity.setAttribute('resize', { targetSize: 2.0, scaleLimit: 10.0 });
+  }
   if (mainFileName.endsWith('.gltf')) {
     entity.setAttribute('gltf-model', gltfBlobUrl);
   } else if (mainFileName.endsWith('.glb')) {
@@ -102,6 +111,7 @@ export function importModelToScene(model, allowMultiple = false) {
             y: currentPos.y + Math.abs(minY) + 0.05,
             z: currentPos.z
           });
+          console.log('Model was repositioned. New position:', entity.getAttribute('position'));
         }
       }
       console.log('Model loaded successfully:', model.name);
