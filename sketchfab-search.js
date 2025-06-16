@@ -45,8 +45,9 @@ export async function downloadAndSaveModel(model, glbFile) {
     headers: { Authorization: `Bearer ${token}` }
   });
   if (!downloadInfoRes.ok) {
-    console.log('Download: Failed to get download info', downloadInfoRes.status);
-    alert('Failed to get download info for this model.');
+    const errorText = await downloadInfoRes.text();
+    console.log('Download: Failed to get download info', downloadInfoRes.status, errorText);
+    alert('Failed to get download info for this model. Status: ' + downloadInfoRes.status + '\\n' + errorText);
     return;
   }
   const downloadInfo = await downloadInfoRes.json();

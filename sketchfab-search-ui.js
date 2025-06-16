@@ -56,7 +56,7 @@ window.renderSketchfabSearchResultsUI = function(
           btn.disabled = false;
           btn.classList.remove('sketchfab-result-download');
           btn.classList.add('sketchfab-result-goto');
-          btn.onclick = () => window.location.href = 'models.html';
+          btn.onclick = () => window.location.href = 'my-models.html';
         } catch (e) {
           alert('Download failed: ' + e.message);
           btn.textContent = 'Download';
@@ -107,7 +107,7 @@ window.renderSketchfabSearchResultsUI = function(
       btn.classList.remove('sketchfab-result-download');
       btn.classList.add('sketchfab-result-mymodels');
       btn.disabled = false;
-      btn.onclick = () => window.location.href = 'models.html';
+      btn.onclick = () => window.location.href = 'my-models.html';
     }
   });
 };
