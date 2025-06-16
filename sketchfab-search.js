@@ -88,7 +88,7 @@ export async function downloadAndSaveModel(model, glbFile) {
     const reader2 = new FileReader();
     // eslint-disable-next-line no-loop-func
     await new Promise((resolve, reject) => {
-      reader2.onload = function() {
+      reader2.onload = function () {
         fileBase64s[fname] = reader2.result;
         resolve();
       };
