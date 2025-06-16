@@ -3,7 +3,7 @@ AFRAME.registerComponent('look-at-camera', {
   tick: function () {
     const cameraEl = document.querySelector('[camera]');
     if (!cameraEl) return;
-    
+
     const worldPos = new THREE.Vector3();
     cameraEl.object3D.getWorldPosition(worldPos);
     this.el.object3D.lookAt(worldPos);
@@ -36,15 +36,15 @@ AFRAME.registerComponent("grabbing", {
   },
   events: {
     gripdown: function (evt) {
-    if (
-      evt.currentTarget.components["raycaster"].intersections.length > 0 &&
-      evt.currentTarget.components["raycaster"].intersections[0].object.el &&
-      evt.currentTarget.components["raycaster"].intersections[0].object.el.id !== "ground"
-    ) {
-      this.grabbed =
-        evt.currentTarget.components["raycaster"].intersections[0].object.el;
-      evt.currentTarget.object3D.attach(this.grabbed.object3D);
-    }
+      if (
+        evt.currentTarget.components["raycaster"].intersections.length > 0 &&
+        evt.currentTarget.components["raycaster"].intersections[0].object.el &&
+        evt.currentTarget.components["raycaster"].intersections[0].object.el.id !== "ground"
+      ) {
+        this.grabbed =
+          evt.currentTarget.components["raycaster"].intersections[0].object.el;
+        evt.currentTarget.object3D.attach(this.grabbed.object3D);
+      }
     },
     gripup: function (evt) {
       if (this.grabbed) {
@@ -117,19 +117,18 @@ AFRAME.registerComponent("resize", {
     scaleLimit: { type: "number", default: 10.0 } // Maximum scale factor
   },
 
-  init: function() {
+  init: function () {
     this.rescaleModel = this.rescaleModel.bind(this);
     this.el.addEventListener("model-loaded", this.rescaleModel);
   },
 
-  remove: function() {
+  remove: function () {
     this.el.removeEventListener("model-loaded", this.rescaleModel);
   },
 
-  rescaleModel: function() {
+  rescaleModel: function () {
     const el = this.el;
     const mesh = el.getObject3D("mesh");
-    
     if (!mesh) {
       console.warn("Model mesh not found");
       return;
@@ -141,7 +140,7 @@ AFRAME.registerComponent("resize", {
 
     // Find the largest dimension
     const maxDim = Math.max(size.x, size.y, size.z);
-    
+
     if (maxDim === 0) {
       console.warn("Invalid model dimensions");
       return;
@@ -156,17 +155,44 @@ AFRAME.registerComponent("resize", {
     // Apply uniform scaling
     el.setAttribute("scale", `${scaleFactor} ${scaleFactor} ${scaleFactor}`);
 
-    // Center the model
-    const center = box.getCenter(new THREE.Vector3());
-    const offset = center.multiplyScalar(-scaleFactor);
-    
-    const currentPosition = el.getAttribute("position");
-    el.setAttribute("position", {
-      x: currentPosition.x + offset.x,
-      y: currentPosition.y + offset.y,
-      z: currentPosition.z + offset.z
-    });
-
     console.log(`Model rescaled. Original size: ${maxDim}m, Scale factor: ${scaleFactor}`);
   }
 });
+
+AFRAME.registerComponent('reposition-on-load', {
+  init: function () {
+    this.repositionModel = this.repositionModel.bind(this);
+    this.el.addEventListener('model-loaded', this.repositionModel);
+  },
+  remove: function () {
+    this.el.removeEventListener('model-loaded', this.repositionModel);
+  },
+  repositionModel: function () {
+    const el = this.el;
+    const mesh = el.getObject3D('mesh');
+    if (!mesh) return;
+
+    // Compute bounding box
+    const box = new THREE.Box3().setFromObject(mesh);
+    const center = box.getCenter(new THREE.Vector3());
+    const minY = box.min.y;
+
+    // Center X and Z, keep Y unchanged for now
+    const currentPos = el.getAttribute('position');
+    el.setAttribute('position', {
+      x: currentPos.x - center.x,
+      y: currentPos.y,
+      z: currentPos.z - center.z
+    });
+
+    // After centering, raise if below ground
+    if (minY < 0) {
+      const newPos = el.getAttribute('position');
+      el.setAttribute('position', {
+        x: newPos.x,
+        y: newPos.y + Math.abs(minY) + 0.05,
+        z: newPos.z
+      });
+    }
+  }
+})

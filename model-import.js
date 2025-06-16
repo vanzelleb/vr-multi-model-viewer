@@ -4,7 +4,7 @@ export function importModelToScene(model, allowMultiple = false) {
   const scene = document.querySelector('a-scene');
   if (!scene) {
     console.warn('A-Frame scene not found!');
-    return {success: false, error: 'Scene not found'};
+    return { success: false, error: 'Scene not found' };
   }
 
   // Remove previous imported model entities if not allowMultiple
@@ -22,7 +22,7 @@ export function importModelToScene(model, allowMultiple = false) {
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n);
     }
-    const blob = new Blob([u8arr], {type: mime});
+    const blob = new Blob([u8arr], { type: mime });
     blobUrls[filename] = URL.createObjectURL(blob);
   });
 
@@ -47,7 +47,7 @@ export function importModelToScene(model, allowMultiple = false) {
       });
     }
     const patchedText = JSON.stringify(gltfJson);
-    const patchedBlob = new Blob([patchedText], {type: 'model/gltf+json'});
+    const patchedBlob = new Blob([patchedText], { type: 'model/gltf+json' });
     gltfBlobUrl = URL.createObjectURL(patchedBlob);
   }
 
@@ -61,17 +61,9 @@ export function importModelToScene(model, allowMultiple = false) {
   const entity = document.createElement('a-entity');
   entity.setAttribute('class', 'imported-model-entity');
   // Ensure model is above the ground plane
-  // Use easter egg position/scale if present
-  if (model.easterEggPosition) {
-    entity.setAttribute('position', model.easterEggPosition);
-  } else {
-    entity.setAttribute('position', '0 0.5 -3.5');
-  }
-  if (model.easterEggScale) {
-    entity.setAttribute('scale', model.easterEggScale);
-  } else {
-    entity.setAttribute('resize', { targetSize: 2.0, scaleLimit: 10.0 });
-  }
+  entity.setAttribute('position', '0 0.5 -3.5');
+  entity.setAttribute('resize', { targetSize: 2.0, scaleLimit: 10.0 });
+  entity.setAttribute('reposition-on-load', '');
   if (mainFileName.endsWith('.gltf')) {
     entity.setAttribute('gltf-model', gltfBlobUrl);
   } else if (mainFileName.endsWith('.glb')) {
@@ -97,27 +89,10 @@ export function importModelToScene(model, allowMultiple = false) {
     }, 30000);
     entity.addEventListener('model-loaded', () => {
       clearTimeout(timeout);
-      // Ensure model is above the ground plane
-      const mesh = entity.getObject3D('mesh');
-      if (mesh) {
-        mesh.updateMatrixWorld(true);
-        const box = new THREE.Box3().setFromObject(mesh);
-        const minY = box.min.y;
-        if (minY < 0) {
-          // Raise the entity so the lowest part is at y=0.05 (slightly above ground)
-          const currentPos = entity.getAttribute('position');
-          entity.setAttribute('position', {
-            x: currentPos.x,
-            y: currentPos.y + Math.abs(minY) + 0.05,
-            z: currentPos.z
-          });
-          console.log('Model was repositioned. New position:', entity.getAttribute('position'));
-        }
-      }
       console.log('Model loaded successfully:', model.name);
       if (loadingMessage) loadingMessage.setAttribute('visible', false);
       if (errorMessage) errorMessage.setAttribute('visible', false);
-      resolve({success: true, entity});
+      resolve({ success: true, entity });
     });
   });
 }

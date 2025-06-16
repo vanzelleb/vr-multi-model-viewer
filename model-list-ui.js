@@ -71,7 +71,8 @@ export async function renderDownloadedModels() {
         });
         li.querySelector('.btn-remove').addEventListener('click', async () => {
             console.log('Delete button clicked for model:', m.uid, m.name);
-            const updated = await getDownloadedModels().filter(mm => mm.uid !== m.uid);
+            const updated = await getDownloadedModels()
+            updated.filter(mm => mm.uid !== m.uid);
             await saveDownloadedModels(updated);
             await renderDownloadedModels();
         });
@@ -109,10 +110,7 @@ function easterEgg() {
                     files: { 'piece.glb': base64 },
                     mainFileName: 'piece.glb',
                     size: blob.size,
-                    thumbnail: '',
-                    // Add these properties for importModelToScene to use:
-                    easterEggPosition: '0 1 0', // 1 unit above ground
-                    easterEggScale: '0.2 0.2 0.2' // 5x smaller
+                    thumbnail: ''
                 };
                 await addDownloadedModel(model);
                 alert('Easter egg model added!');
