@@ -1,6 +1,6 @@
 // Sketchfab search and download logic
 import { getAccessToken, loginWithSketchfab } from './sketchfab-auth.js';
-import { addDownloadedModel } from './storage.js';
+import { addDownloadedModel, getDownloadedModels } from './storage.js';
 import * as zipJs from 'https://cdn.jsdelivr.net/npm/@zip.js/zip.js@2.7.61/+esm';
 
 let lastQuery = '';
@@ -10,6 +10,11 @@ let lastPrevUrl = null;
 
 export async function searchSketchfab(query, resultsDiv) {
   const token = getAccessToken();
+  const COMMERCIAL_LICENSES = ['by', 'by-sa', 'by-nd', 'cc0', 'free-st', 'st'];
+ 
+
+  // Use commercialResults instead of data.results for your UI rendering
+  lastResults = commercialResults;
   if (!token) return;
   resultsDiv.innerHTML = '<div>Loading...</div>';
   const url = `https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true`;
@@ -17,12 +22,14 @@ export async function searchSketchfab(query, resultsDiv) {
     headers: { Authorization: `Bearer ${token}` }
   });
   const data = await res.json();
-  lastQuery = query;
-  lastResults = data.results;
+  // filter only for models with licenses that allow commercial use
+  lastResults = data.results.filter(model =>
+    model.license && COMMERCIAL_LICENSES.includes(model.license.slug)
+  );
   lastNextUrl = data.next || null;
   lastPrevUrl = data.previous || null;
   // UI rendering is now handled in sketchfab-search-ui.js
-  const downloadedModels = JSON.parse(localStorage.getItem('combinevr-downloaded-models') || '[]');
+  const downloadedModels = await getDownloadedModels();
   const downloadedUids = new Set(downloadedModels.map(m => m.uid));
   if (window.renderSketchfabSearchResultsUI) {
     window.renderSketchfabSearchResultsUI(resultsDiv, lastResults, lastNextUrl, lastPrevUrl, downloadedUids, downloadAndSaveModel);
@@ -138,8 +145,7 @@ export async function fetchPage(url, resultsDiv) {
   lastResults = data.results;
   lastNextUrl = data.next || null;
   lastPrevUrl = data.previous || null;
-  // UI rendering is now handled in sketchfab-search-ui.js
-  const downloadedModels = JSON.parse(localStorage.getItem('combinevr-downloaded-models') || '[]');
+  const downloadedModels = await getDownloadedModels();
   const downloadedUids = new Set(downloadedModels.map(m => m.uid));
   if (window.renderSketchfabSearchResultsUI) {
     console.log('fetchPage: Rendering UI with new results');

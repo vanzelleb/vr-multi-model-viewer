@@ -72,8 +72,8 @@ export async function renderDownloadedModels() {
         li.querySelector('.btn-remove').addEventListener('click', async () => {
             console.log('Delete button clicked for model:', m.uid, m.name);
             const updated = await getDownloadedModels()
-            updated.filter(mm => mm.uid !== m.uid);
-            await saveDownloadedModels(updated);
+            const filtered = updated.filter(mm => mm.uid !== m.uid);
+            await saveDownloadedModels(filtered);
             await renderDownloadedModels();
         });
         downloadedList.appendChild(li);

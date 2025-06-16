@@ -1,7 +1,7 @@
 // Sketchfab OAuth logic
 export const SKETCHFAB_CLIENT_ID = 'l1SrgifJvXQ3BehACPbq9ykx8Ke02NTYuyjXoLJv';
 export const SKETCHFAB_REDIRECT_URI = 'https://combinevr.netlify.app/';
-export const OAUTH_URL = `https://sketchfab.com/oauth2/authorize/?response_type=token&client_id=${SKETCHFAB_CLIENT_ID}&redirect_uri=${encodeURIComponent(SKETCHFAB_REDIRECT_URI)}`;
+export const OAUTH_URL = `https://sketchfab.com/oauth2/authorize/?response_type=token&client_id=${SKETCHFAB_CLIENT_ID}&redirect_uri=${encodeURIComponent(SKETCHFAB_REDIRECT_URI)}&approval_prompt=auto`;
 
 export function getAccessToken() {
   return localStorage.getItem('sketchfabAccessToken') || null;

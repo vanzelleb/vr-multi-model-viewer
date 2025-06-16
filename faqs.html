@@ -1,6 +1,7 @@
 <!-- FAQs Page for CombineVR -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;900&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <header class="sticky-header">
     <div class="header-content">
@@ -24,28 +26,49 @@
     <div class="faq-list">
       <div class="faq-item">
         <h3>Where do downloaded models get stored?</h3>
-        <p>Downloaded models are stored in your browser's local storage under the key <code>combinevr-downloaded-models</code>. All model files are saved as base64-encoded data and are only accessible from this browser and device.</p>
+        <p>Downloaded models are stored in your browser's storage. All model files are saved as base64-encoded data and are only
+          accessible from this browser and device.</p>
       </div>
       <div class="faq-item">
         <h3>How do I import a downloaded model into the AR/VR scene?</h3>
-        <p>Go to the <b>My Models</b> page, find your downloaded model, and click the <b>Import</b> button. The model will be loaded into the AR/VR scene.</p>
+        <p>Go to the <b>My Models</b> page, find your downloaded model, and click the <b>Import</b> button. The model
+          will be loaded into the AR/VR scene.</p>
       </div>
       <div class="faq-item">
         <h3>Can I export or share my downloaded models?</h3>
-        <p>Currently, models are only available in your browser's storage. Export and sharing features may be added in the future.</p>
+        <p>Currently, models are only available in your browser's storage. Export and sharing features may be added in
+          the future.</p>
       </div>
       <div class="faq-item">
         <h3>Why do I need to log in with Sketchfab?</h3>
-        <p>Logging in with Sketchfab allows you to search and download models that are available for download, following Sketchfab's API and licensing requirements.</p>
+        <p>Logging in with Sketchfab allows you to search and download models that are available for download, following
+          Sketchfab's API and licensing requirements.</p>
       </div>
       <div class="faq-item">
         <h3>Why do some models fail to import?</h3>
-        <p>Some models may have complex dependencies or unsupported formats. Only models with downloadable .gltf/.glb files are supported. If a model fails to import, try another one.</p>
+        <p>Some models may have complex dependencies or unsupported formats. Only models with downloadable .gltf/.glb
+          files are supported. If a model fails to import, try another one.</p>
       </div>
+      <div class="faq-item">
+        <h3>Why does the search not find a certain model?</h3>
+        <p>
+          CombineVR only shows models with licenses that allow commercial use. Supported licenses include:
+        <ul>
+          <li>CC Attribution (by)</li>
+          <li>CC Attribution-ShareAlike (by-sa)</li>
+          <li>CC Attribution-NoDerivs (by-nd)</li>
+          <li>CC0 Public Domain (cc0)</li>
+          <li>Free Standard (free-st)</li>
+          <li>Standard (st)</li>
+        </ul>
+        Models with non-commercial or editorial licenses are not shown in search results. If you can't find a specific model, it may be due to its
+        license restrictions.
+        </p></div>
     </div>
   </main>
   <footer style="margin-top: 3rem; padding: 1.5rem; background-color: #2d3748; text-align: center; color: #a0aec0;">
     <p>© 2025 CombineVR. All rights reserved.</p>
   </footer>
 </body>
+
 </html>
