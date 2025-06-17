@@ -110,9 +110,14 @@ async function fetchSketchfabResults(url) {
     headers: { Authorization: `Bearer ${token}` }
   });
   const data = await res.json();
+  console.log('fetchSketchfabResults: API returned', data.results.length, 'items');
+  console.log('Sample licenses:', data.results.slice(0, 3).map(m => m.license));
+  
   const filteredResults = data.results.filter(model =>
     model.license && COMMERCIAL_LICENSES.includes(model.license.slug)
   );
+  console.log('fetchSketchfabResults: Filtered to', filteredResults.length, 'commercial-use items');
+
   return {
     results: filteredResults,
     next: data.next || null,
