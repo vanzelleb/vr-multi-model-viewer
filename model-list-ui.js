@@ -18,22 +18,22 @@ export async function renderDownloadedModels() {
         const li = document.createElement('li');
         li.className = 'model-item';
         li.innerHTML = `
-      <div class="model-thumb-row">
-        ${thumbnail ? `<img src="${thumbnail}" alt="${m.name}" />` : ''}
-        <div>
-                  <span class="skfb-attrib">
-          <a href="https://sketchfab.com/3d-models/${m.uid}" target="_blank" rel="noopener">${m.name}</a>
-          by <a href="${artistUrl}" target="_blank" rel="noopener">${m.artist}</a>
-          licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
-        </span>
-          <span class="model-size">${(m.size / (1024 * 1024)).toFixed(2)} MB</span>
+        <div class="model-thumb-row">
+          ${thumbnail ? `<img src="${thumbnail}" alt="${m.name}" />` : ''}
+          <div>
+            <span class="skfb-attrib">
+              <a href="https://sketchfab.com/3d-models/${m.uid}" target="_blank" rel="noopener">${m.name}</a>
+              by <a href="${artistUrl}" target="_blank" rel="noopener">${m.artist}</a>
+              licensed under <a href="${m.licenseUrl || '#'}" target="_blank" rel="noopener">${m.license.label || 'Unknown License'}</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
+            </span>
+            <span class="model-size">${(m.size / (1024 * 1024)).toFixed(2)} MB</span>
+          </div>
         </div>
-      </div>
-      <div class="model-actions">
-        <button class="btn btn-import" data-model-idx="${idx}">Import</button>
-        <button class="btn btn-remove" data-model-idx="${idx}">Delete</button>
-      </div>
-    `;
+        <div class="model-actions">
+          <button class="btn btn-import" data-model-idx="${idx}">Import</button>
+          <button class="btn btn-remove" data-model-idx="${idx}">Delete</button>
+        </div>
+      `;
         const importBtn = li.querySelector('.btn-import');
         importBtn.addEventListener('click', async () => {
             try {

@@ -105,16 +105,23 @@ export async function downloadAndSaveModel(model, glbFile) {
 async function fetchSketchfabResults(url) {
   const token = getAccessToken();
   if (!token) return null;
-  const COMMERCIAL_LICENSES = ['by', 'by-sa', 'by-nd', 'cc0', 'free-st', 'st'];
+  const COMMERCIAL_LICENSE_LABELS = [
+    'CC Attribution',
+    'CC Attribution-ShareAlike',
+    'CC Attribution-NoDerivs',
+    'CC0 Public Domain',
+    'Free Standard',
+    'Standard'
+  ];
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   });
   const data = await res.json();
   console.log('fetchSketchfabResults: API returned', data.results.length, 'items');
   console.log('Sample licenses:', data.results.slice(0, 3).map(m => m.license));
-  
+
   const filteredResults = data.results.filter(model =>
-    model.license && COMMERCIAL_LICENSES.includes(model.license.slug)
+    model.license && COMMERCIAL_LICENSE_LABELS.includes(model.license.label)
   );
   console.log('fetchSketchfabResults: Filtered to', filteredResults.length, 'commercial-use items');
 
