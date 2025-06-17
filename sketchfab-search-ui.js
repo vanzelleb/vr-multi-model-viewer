@@ -1,5 +1,6 @@
 // Import fetchPage directly for modularity and clarity
 import { fetchPage } from './sketchfab-search.js';
+import { renderDownloadedModels } from './model-list-ui.js';
 
 // Expose a global UI render function for use by sketchfab-search.js
 window.renderSketchfabSearchResultsUI = function(
@@ -25,7 +26,7 @@ window.renderSketchfabSearchResultsUI = function(
       <span class="skfb-attrib">
         <a href="https://sketchfab.com/3d-models/${model.slug || model.uid}" target="_blank" rel="noopener">${model.name}</a>
         by <a href="${model.user.profileUrl || '#'}" target="_blank" rel="noopener">${model.user.displayName}</a>
-        licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
+        licensed under <a href="${model.licenseUrl || '#'}" target="_blank" rel="noopener">${model.license.label || 'Unknown License'}</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
       </span>
     `;
     const el = document.createElement('div');
@@ -52,6 +53,7 @@ window.renderSketchfabSearchResultsUI = function(
         btn.disabled = true;
         try {
           await downloadAndSaveModel(model, smallestGlb);
+          renderDownloadedModels();
           btn.textContent = 'See My Models';
           btn.disabled = false;
           btn.classList.remove('sketchfab-result-download');
