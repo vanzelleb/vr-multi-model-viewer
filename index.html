@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;900&display=swap">
   <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <script type="module" src="main.js"></script>
   <script type="module" src="aframe-extensions.js"></script>
   <script type="module" src="sketchfab-auth.js"></script>
   <script type="module" src="sketchfab-search-ui.js"></script>
@@ -140,44 +141,6 @@
     </h3>
     <p>© 2025 CombineVR. All rights reserved.</p>
   </footer>
-  <script type="module">
-    import { handleOAuthRedirect, loginWithSketchfab } from './sketchfab-auth.js';
-    import { searchSketchfab } from './sketchfab-search.js';
-    import { renderDownloadedModels } from './model-list-ui.js';
-
-    function showSearch() {
-      document.getElementById('sketchfab-login-container').style.display = 'none';
-      document.getElementById('sketchfab-search-container').style.display = 'flex';
-    }
-    function showLogin() {
-      document.getElementById('sketchfab-login-container').style.display = 'block';
-      document.getElementById('sketchfab-search-container').style.display = 'none';
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      handleOAuthRedirect(showSearch, showLogin);
-      const loginBtn = document.getElementById('sketchfab-login-btn');
-      if (loginBtn) {
-        loginBtn.onclick = loginWithSketchfab;
-      }
-
-      // Attach search logic
-      const searchBtn = document.getElementById('sketchfab-search-btn');
-      const searchInput = document.getElementById('sketchfab-search');
-      const resultsDiv = document.getElementById('sketchfab-search-results');
-      function doSearch() {
-        const query = searchInput.value.trim();
-        if (query) searchSketchfab(query, resultsDiv, 1);
-      }
-      if (searchBtn) searchBtn.onclick = doSearch;
-      if (searchInput) {
-        searchInput.addEventListener('keydown', e => {
-          if (e.key === 'Enter') doSearch();
-        });
-      }
-      renderDownloadedModels();
-    });
-  </script>
 </body>
 
 </html>

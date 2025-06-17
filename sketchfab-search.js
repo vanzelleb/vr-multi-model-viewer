@@ -102,15 +102,22 @@ export async function downloadAndSaveModel(model, glbFile) {
   console.log('Download: Saved model to storage', model.uid, mainFileName, 'with thumbnail', (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url));
 }
 
-export async function searchSketchfab(query, resultsDiv) {
-  const url = `https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true`;
-  console.log('searchSketchfab called with url:', url);
-  await fetchAndRenderSketchfab(url, resultsDiv);
-}
-
-export async function fetchPage(url, resultsDiv) {
-  console.log('fetchPage called with url:', url);
-  await fetchAndRenderSketchfab(url, resultsDiv);
+async function fetchSketchfabResults(url) {
+  const token = getAccessToken();
+  if (!token) return null;
+  const COMMERCIAL_LICENSES = ['by', 'by-sa', 'by-nd', 'cc0', 'free-st', 'st'];
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = await res.json();
+  const filteredResults = data.results.filter(model =>
+    model.license && COMMERCIAL_LICENSES.includes(model.license.slug)
+  );
+  return {
+    results: filteredResults,
+    next: data.next || null,
+    previous: data.previous || null
+  };
 }
 
 async function fetchAndRenderSketchfab(url, resultsDiv) {
@@ -130,3 +137,15 @@ async function fetchAndRenderSketchfab(url, resultsDiv) {
     resultsDiv.innerHTML = '<div>UI module not loaded.</div>';
   }
 }
+
+export async function searchSketchfab(query, resultsDiv) {
+  const url = `https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true`;
+  console.log('searchSketchfab called with url:', url);
+  await fetchAndRenderSketchfab(url, resultsDiv);
+}
+
+export async function fetchPage(url, resultsDiv) {
+  console.log('fetchPage called with url:', url);
+  await fetchAndRenderSketchfab(url, resultsDiv);
+}
+
