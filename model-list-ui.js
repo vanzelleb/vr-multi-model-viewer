@@ -1,5 +1,5 @@
 import { importModelToScene } from './model-import.js';
-import { addDownloadedModel, getDownloadedModels, saveDownloadedModels } from './storage.js';
+import { addDownloadedModel, getDownloadedModels, deleteDownloadedModel } from './storage.js';
 
 export async function renderDownloadedModels() {
     const downloadedList = document.getElementById('downloaded-models-list');
@@ -69,11 +69,10 @@ export async function renderDownloadedModels() {
                 }, 2000);
             }
         });
+        
         li.querySelector('.btn-remove').addEventListener('click', async () => {
             console.log('Delete button clicked for model:', m.uid, m.name);
-            const updated = await getDownloadedModels()
-            const filtered = updated.filter(mm => mm.uid !== m.uid);
-            await saveDownloadedModels(filtered);
+            await deleteDownloadedModel(m.uid);
             await renderDownloadedModels();
         });
         downloadedList.appendChild(li);

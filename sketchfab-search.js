@@ -8,32 +8,6 @@ let lastResults = [];
 let lastNextUrl = null;
 let lastPrevUrl = null;
 
-export async function searchSketchfab(query, resultsDiv) {
-  const token = getAccessToken();
-  const COMMERCIAL_LICENSES = ['by', 'by-sa', 'by-nd', 'cc0', 'free-st', 'st'];
-  if (!token) return;
-  resultsDiv.innerHTML = '<div>Loading...</div>';
-  const url = `https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true`;
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const data = await res.json();
-  // filter only for models with licenses that allow commercial use
-  lastResults = data.results.filter(model =>
-    model.license && COMMERCIAL_LICENSES.includes(model.license.slug)
-  );
-  lastNextUrl = data.next || null;
-  lastPrevUrl = data.previous || null;
-  // UI rendering is now handled in sketchfab-search-ui.js
-  const downloadedModels = await getDownloadedModels();
-  const downloadedUids = new Set(downloadedModels.map(m => m.uid));
-  if (window.renderSketchfabSearchResultsUI) {
-    window.renderSketchfabSearchResultsUI(resultsDiv, lastResults, lastNextUrl, lastPrevUrl, downloadedUids, downloadAndSaveModel);
-  } else {
-    resultsDiv.innerHTML = '<div>UI module not loaded.</div>';
-  }
-}
-
 // Only keep downloadAndSaveModel and fetchPage for data logic, not UI
 export async function downloadAndSaveModel(model, glbFile) {
   console.log('Download: Start for model', model.uid, model.name);
@@ -128,24 +102,30 @@ export async function downloadAndSaveModel(model, glbFile) {
   console.log('Download: Saved model to storage', model.uid, mainFileName, 'with thumbnail', (model.thumbnails && model.thumbnails.images && model.thumbnails.images[0] && model.thumbnails.images[0].url));
 }
 
+export async function searchSketchfab(query, resultsDiv) {
+  const url = `https://api.sketchfab.com/v3/search?type=models&q=${encodeURIComponent(query)}&downloadable=true&sort_by=likeCount&file_format=glb&archives_flavours=true`;
+  console.log('searchSketchfab called with url:', url);
+  await fetchAndRenderSketchfab(url, resultsDiv);
+}
+
 export async function fetchPage(url, resultsDiv) {
   console.log('fetchPage called with url:', url);
+  await fetchAndRenderSketchfab(url, resultsDiv);
+}
+
+async function fetchAndRenderSketchfab(url, resultsDiv) {
   resultsDiv.innerHTML = '<div>Loading...</div>';
-  const token = getAccessToken();
-  if (!token) return;
-  console.log('fetchPage: Fetching API:', url);
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const data = await res.json();
+  const data = await fetchSketchfabResults(url);
+  if (!data) return;
   lastResults = data.results;
-  lastNextUrl = data.next || null;
-  lastPrevUrl = data.previous || null;
+  lastNextUrl = data.next;
+  lastPrevUrl = data.previous;
   const downloadedModels = await getDownloadedModels();
   const downloadedUids = new Set(downloadedModels.map(m => m.uid));
   if (window.renderSketchfabSearchResultsUI) {
-    console.log('fetchPage: Rendering UI with new results');
-    window.renderSketchfabSearchResultsUI(resultsDiv, lastResults, lastNextUrl, lastPrevUrl, downloadedUids, downloadAndSaveModel);
+    window.renderSketchfabSearchResultsUI(
+      resultsDiv, lastResults, lastNextUrl, lastPrevUrl, downloadedUids, downloadAndSaveModel
+    );
   } else {
     resultsDiv.innerHTML = '<div>UI module not loaded.</div>';
   }
