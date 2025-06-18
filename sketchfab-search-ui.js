@@ -33,7 +33,7 @@ window.renderSketchfabSearchResultsUI = function(
     el.className = 'sketchfab-result'; // Use the correct card class for grid
     let downloadHtml = '';
     let sizeMB = smallestGlb ? (smallestGlb.size / (1024 * 1024)).toFixed(2) : '';
-    if (smallestGlb) {
+    if (glbFiles) {
       downloadHtml = `
         <button class="sketchfab-result-download" data-glb-idx="${glbFiles.indexOf(smallestGlb)}">${downloadedUids.has(model.uid) ? 'Downloaded' : 'Download'}</button>
       `;
@@ -46,7 +46,7 @@ window.renderSketchfabSearchResultsUI = function(
       <div class="sketchfab-result-attribution">${attribution}</div>
       <div class="sketchfab-result-size">${sizeMB} MB</div>
     `;
-    if (smallestGlb && !downloadedUids.has(model.uid)) {
+    if (glbFiles && !downloadedUids.has(model.uid)) {
       el.querySelector('.sketchfab-result-download').addEventListener('click', async () => {
         const btn = el.querySelector('.sketchfab-result-download');
         btn.textContent = 'Downloading...';
@@ -54,11 +54,7 @@ window.renderSketchfabSearchResultsUI = function(
         try {
           await downloadAndSaveModel(model, smallestGlb);
           renderDownloadedModels();
-          btn.textContent = 'See My Models';
-          btn.disabled = false;
-          btn.classList.remove('sketchfab-result-download');
-          btn.classList.add('sketchfab-result-goto');
-          btn.onclick = () => window.location.href = 'index.html';
+          btn.disabled = true;
         } catch (e) {
           alert('Download failed: ' + e.message);
           btn.textContent = 'Download';
@@ -101,14 +97,4 @@ window.renderSketchfabSearchResultsUI = function(
   }
   paginationWrapper.appendChild(paginationDiv);
   resultsDiv.appendChild(paginationWrapper);
-
-  Array.from(document.querySelectorAll('.sketchfab-result-download')).forEach(btn => {
-    if (btn.textContent === 'Downloaded') {
-      btn.textContent = 'My Models';
-      btn.classList.remove('sketchfab-result-download');
-      btn.classList.add('sketchfab-result-mymodels');
-      btn.disabled = false;
-      btn.onclick = () => window.location.href = 'index.html';
-    }
-  });
 };

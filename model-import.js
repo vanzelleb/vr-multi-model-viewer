@@ -61,7 +61,7 @@ export function importModelToScene(model, allowMultiple = false) {
   const entity = document.createElement('a-entity');
   entity.setAttribute('class', 'imported-model-entity');
   // Ensure model is above the ground plane
-  entity.setAttribute('position', '0 0.5 -3.5');
+  entity.setAttribute('position', '0 0.5 -5');
   entity.setAttribute('resize', { targetSize: 2.0, scaleLimit: 10.0 });
   entity.setAttribute('reposition-on-load', '');
   if (mainFileName.endsWith('.gltf')) {

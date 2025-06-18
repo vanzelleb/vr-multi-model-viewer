@@ -9,80 +9,51 @@ export async function renderDownloadedModels() {
         return;
     }
     models.forEach((m, idx) => {
-        // Defensive: ensure licenseUrl is a string
-        const licenseUrl = typeof m.licenseUrl === 'string' ? m.licenseUrl : 'https://creativecommons.org/licenses/by/4.0/';
-        // Defensive: ensure artistUrl is a string
-        const artistUrl = typeof m.artistUrl === 'string' ? m.artistUrl : '#';
-        // Defensive: ensure thumbnail is a string
-        const thumbnail = typeof m.thumbnail === 'string' ? m.thumbnail : '';
-        const li = document.createElement('li');
-        li.className = 'model-item';
-        li.innerHTML = `
-        <div class="model-thumb-row">
-          ${thumbnail ? `<img src="${thumbnail}" alt="${m.name}" />` : ''}
+        const div = document.createElement('div');
+        div.className = 'model-item';
+        div.innerHTML = `
+          ${m.thumbnail ? `<img src="${m.thumbnail}" alt="${m.name}" />` : ''}
           <div>
             <span class="skfb-attrib">
               <a href="https://sketchfab.com/3d-models/${m.uid}" target="_blank" rel="noopener">${m.name}</a>
-              by <a href="${artistUrl}" target="_blank" rel="noopener">${m.artist}</a>
+              by <a href="${m.artistUrl}" target="_blank" rel="noopener">${m.artist}</a>
               licensed under <a href="${m.licenseUrl || '#'}" target="_blank" rel="noopener">${m.license.label || 'Unknown License'}</a> on <a href="https://sketchfab.com/" target="_blank" rel="noopener">Sketchfab</a>
             </span>
-            <span class="model-size">${(m.size / (1024 * 1024)).toFixed(2)} MB</span>
+            <span>${(m.size / (1024 * 1024)).toFixed(2)} MB</span>
           </div>
-        </div>
         <div class="model-actions">
-          <button class="btn btn-import" data-model-idx="${idx}">Import</button>
+          <button class="btn btn-import" data-model-idx="${idx}">Show</button>
           <button class="btn btn-remove" data-model-idx="${idx}">Delete</button>
         </div>
       `;
-        const importBtn = li.querySelector('.btn-import');
+        const importBtn = div.querySelector('.btn-import');
         importBtn.addEventListener('click', async () => {
             try {
                 // Show loading state
-                importBtn.classList.add('loading');
                 importBtn.disabled = true;
-
-                console.log('Import button clicked for model:', m.uid, m.name, m);
                 const result = await importModelToScene(m);
 
-                if (result.success) {
-                    // Show success state briefly
-                    importBtn.textContent = 'Imported!';
-                    importBtn.classList.add('success');
-                    setTimeout(() => {
-                        importBtn.textContent = 'Import';
-                        importBtn.classList.remove('success');
-                        importBtn.classList.remove('loading');
-                        importBtn.disabled = false;
-                    }, 2000);
-                } else {
+                if (!result.success) {
                     throw new Error(result.error || 'Import failed');
                 }
             } catch (err) {
-                console.error('Import failed:', err);
-                importBtn.textContent = 'Failed!';
-                importBtn.classList.add('error');
-                setTimeout(() => {
-                    importBtn.textContent = 'Import';
-                    importBtn.classList.remove('error');
-                    importBtn.classList.remove('loading');
-                    importBtn.disabled = false;
-                }, 2000);
+                alert('Import failed:', err);
             }
         });
         
-        li.querySelector('.btn-remove').addEventListener('click', async () => {
+        div.querySelector('.btn-remove').addEventListener('click', async () => {
             console.log('Delete button clicked for model:', m.uid, m.name);
             await deleteDownloadedModel(m.uid);
             await renderDownloadedModels();
         });
-        downloadedList.appendChild(li);
+        downloadedList.appendChild(div);
     });
 }
 
 
 
 function easterEgg() {
-    const h2 = document.querySelector('.model-list h2');
+    const h2 = document.getElementsByTagName("a-scene").item(0)
     if (!h2) return;
     let clickCount = 0;
     h2.addEventListener('click', async () => {

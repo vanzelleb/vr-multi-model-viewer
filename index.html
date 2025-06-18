@@ -19,104 +19,70 @@
     posthog.init('phc_BDMGKDZ053hFLSqvyO5KXsmNOIboTzL4miHGHIk9gQl', {
       api_host: 'https://eu.i.posthog.com',
       defaults: '2025-05-24',
-      person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
+      person_profiles: 'always',
     })
   </script>
 </head>
 
 <body>
-  <header class="sticky-header">
-    <div class="header-content">
-      <h1>CombineVR</h1>
+  <main id="container">
+    <div id="sidebar">
+      <h2>My Models</h2>
+      <ul id="downloaded-models-list"></ul>
+      <button id="upload-model-btn" aria-label="Upload model">Upload .glb model</button>
+      <input type="file" id="upload-model-input" accept=".glb" style="display:none;">
     </div>
-  </header>
-
-  <main>
-    <div class="hero">
-      <h2>Explore. Interact.</h2>
-      <p>Import multiple 3D models from Sketchfab and interact with them in VR. To get started, login to Sketchfab to
-        browse and import your favorite 3D models.</p>
-    </div>
-
-    <div class="connect-button" id="sketchfab-login-container">
-      <button id="sketchfab-login-btn">
-        Login to Sketchfab
-      </button>
-    </div>
-    <div id="sketchfab-search-container"
-      style="display:none; flex-direction: row; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 2rem;">
-      <input type="text" id="sketchfab-search" placeholder="Search Sketchfab models by title and/or user name" />
-      <button id="sketchfab-search-btn">Search</button>
-    </div>
-    <div id="sketchfab-search-results"></div>
-
-    <div class="scene-container improved-ui">
-      <section class="model-list" aria-label="Downloaded Models">
-        <h2>Downloaded Models</h2>
-        <ul id="downloaded-models-list"></ul>
-      </section>
-      <div id="myEmbeddedScene" class="scene-card">
-        <a-scene embedded>
-          <!-- Sky with simple blue color -->
-          <a-sky color="#87ceeb"></a-sky>
-          <a-assets>
-            <img id="gridTexture" src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r146/examples/textures/grid.png"
-              crossorigin="anonymous" />
-            <!-- Only add asset items dynamically when models are imported -->
-          </a-assets> <!-- Transparent mesh-textured ground plane -->
-          <a-plane id="ground" src="#gridTexture" opacity="0.3" transparent="true" repeat="200 200" width="100" height="100"
-            rotation="-90 0 0"
-            material="side: double; transparent: true; opacity: 0.3; metalness: 0.1; roughness: 0.8;"></a-plane>
-          <a-entity id="rig" position="0 0 0">
-            <a-entity id="camera" position="0 1.6 0" camera look-controls wasd-controls></a-entity>
-            <a-entity id="leftHand" hand-tracking-controls="hand: left;"></a-entity>
-            <a-entity id="rightHand" hand-tracking-controls="hand: right;"></a-entity>
-            <a-entity meta-touch-controls="hand: left"></a-entity>
-            <a-entity meta-touch-controls="hand: right" thumbstick-logging laser-controls="hand: right"
-              raycaster="lineColor: #fff; lineOpacity: 0.7; far: 10" grabbing scaling teleporting></a-entity>
-          </a-entity>
-          <a-entity resize gltf-model="#model" position="0 0.5 -1.5" rotation="0 -90 0"></a-entity>
-          <!-- Model loading feedback messages --> <a-entity id="loadingMessage"
-            text="value: Loading model...; color: #4299e1; align: center; width: 3" position="0 2 -2" scale="1.5 1.5 1.5"
-            look-at-camera visible="false"></a-entity>
-          <a-entity id="errorMessage" text="value: Error loading model; color: #e53e3e; align: center; width: 3"
-            position="0 2 -2" scale="1.5 1.5 1.5" look-at-camera visible="false"></a-entity>
-        </a-scene>
+    <div id="scene">
+      <div id="hero">
+        <h1>CombineVR</h1>
+        <p>Import multiple 3D models from Sketchfab and interact with them in VR. To get started, login to Sketchfab
+          to browse and import your favorite 3D models.</p>
       </div>
-    </div>
-
-    <div class="faq-main">
-      <h2>Frequently Asked Questions</h2>
-      <div class="faq-list">
-        <div class="faq-item">
+      <div id="sketchfab-login-container">
+        <button id="sketchfab-login-btn">
+          Login to Sketchfab
+        </button>
+      </div>
+      <div id="sketchfab-search-container">
+        <input type="text" id="sketchfab-search" placeholder="Search Sketchfab models by title and/or user name" />
+        <button id="sketchfab-search-btn">Search</button>
+      </div>
+      <div id="sketchfab-search-results"></div>
+      <div id="faq-container">
+        <h2>Frequently Asked Questions</h2>
+        <div>
           <h3>Why do I need to log in with Sketchfab?</h3>
-          <p>Logging in with Sketchfab allows you to search and download models that are available for download, following
-            Sketchfab's API and licensing requirements.</p>
+          <p>Logging in with Sketchfab allows you to search and download models from their website to your device.
+            You can also upload your own models without using Sketchfab via the My Models page.</p>
         </div>
-        <div class="faq-item">
+        <div>
           <h3>Where do downloaded models get stored?</h3>
-          <p>Downloaded models are stored in your browser's storage. All model files are saved as base64-encoded data and
-            are only accessible from this browser and device.</p>
+          <p>Downloaded models are stored as binary code in your browser.</p>
         </div>
-        <div class="faq-item">
+        <div>
           <h3>How do I import a downloaded model into the VR scene?</h3>
-          <p>Go to the <b>My Models</b> page, find your downloaded model, and click the <b>Import</b> button. The model
-            will be loaded into the VR scene.</p>
+          <p>Go to the <b>My Models</b> page, find your downloaded model, and click the <b>Show</b> button. The
+            model will be loaded into the VR scene.</p>
         </div>
-        <div class="faq-item">
+        <div>
           <h3>Can I export or share my downloaded models?</h3>
-          <p>Currently, models are only available in your browser's storage. Export and sharing features may be added in
+          <p>Currently, models are only available in your browser's storage. Export and sharing features may be
+            added
+            in
             the future.</p>
         </div>
-        <div class="faq-item">
+        <div>
           <h3>Why do some models fail to import?</h3>
-          <p>Some models may have complex dependencies or unsupported formats. Only models with downloadable .gltf/.glb
+          <p>Some models may have complex dependencies or unsupported formats. Only models with downloadable
+            .gltf/.glb
             files are supported. If a model fails to import, try another one.</p>
         </div>
-        <div class="faq-item">
+        <div>
           <h3>Why does the search not find a certain model?</h3>
           <p>
-            CombineVR only shows models with licenses that allow commercial use. Supported licenses include:
+            CombineVR only shows models with licenses that allow commercial use. Models with non-commercial or
+            editorial licenses are not shown in search results. If you can't find a
+            specific model, it may be due to its license restrictions. Supported licenses include:
           <ul>
             <li>CC Attribution (by)</li>
             <li>CC Attribution-ShareAlike (by-sa)</li>
@@ -125,22 +91,47 @@
             <li>Free Standard (free-st)</li>
             <li>Standard (st)</li>
           </ul>
-          Models with non-commercial or editorial licenses are not shown in search results. If you can't find a specific
-          model, it may be due to its
-          license restrictions.
           </p>
         </div>
       </div>
+      <div id="aframe">
+        <a-scene embedded>
+          <!-- Sky with simple blue color -->
+          <a-sky color="#87ceeb"></a-sky>
+          <a-assets>
+            <img id="gridTexture" src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r146/examples/textures/grid.png"
+              crossorigin="anonymous" />
+            <!-- Only add asset items dynamically when models are imported -->
+          </a-assets> <!-- Transparent mesh-textured ground plane -->
+          <a-plane id="ground" src="#gridTexture" opacity="0.3" transparent="true" repeat="200 200" width="100"
+            height="100" rotation="-90 0 0"
+            material="side: double; transparent: true; opacity: 0.3; metalness: 0.1; roughness: 0.8;"></a-plane>
+          <a-entity id="rig" position="0 0 0">
+            <a-entity id="camera" position="0 1.6 3.5" camera look-controls wasd-controls></a-entity>
+            <a-entity id="leftHand" hand-tracking-controls="hand: left;"></a-entity>
+            <a-entity id="rightHand" hand-tracking-controls="hand: right;"></a-entity>
+            <a-entity meta-touch-controls="hand: left"></a-entity>
+            <a-entity meta-touch-controls="hand: right" thumbstick-logging laser-controls="hand: right"
+              raycaster="lineColor: #fff; lineOpacity: 0.7; far: 10" grabbing scaling teleporting></a-entity>
+          </a-entity>
+          <a-entity resize gltf-model="#model" position="0 0.5 -1.5" rotation="0 -90 0"></a-entity>
+          <!-- Model loading feedback messages --> <a-entity id="loadingMessage"
+            text="value: Loading model...; color: #4299e1; align: center; width: 3" position="0 2 -2"
+            scale="1.5 1.5 1.5" look-at-camera visible="false"></a-entity>
+          <a-entity id="errorMessage" text="value: Error loading model; color: #e53e3e; align: center; width: 3"
+            position="0 2 -2" scale="1.5 1.5 1.5" look-at-camera visible="false"></a-entity>
+        </a-scene>
+      </div>
+      <footer>
+        Downloadable models are provided by
+        <a href="https://sketchfab.com"><img src="sketchfab-logo-text.svg" height="18px"
+            style="vertical-align: sub"></a>
+        <p>© 2025 CombineVR. All rights reserved.</p>
+      </footer>
     </div>
+
   </main>
 
-  <footer style="margin-top: 3rem; padding: 1.5rem; background-color: #2d3748; text-align: center; color: #a0aec0;">
-    <h3>
-      Downloadable models are provided by
-      <a href="https://sketchfab.com"><img src="sketchfab-logo-text.svg" height="22px" style="vertical-align: sub"></a>
-    </h3>
-    <p>© 2025 CombineVR. All rights reserved.</p>
-  </footer>
 </body>
 
 </html>
