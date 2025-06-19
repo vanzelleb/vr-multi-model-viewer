@@ -56,7 +56,6 @@ export async function renderDownloadedModels() {
       `;
         const importBtn = div.querySelector('.btn-import');
         importBtn.addEventListener('click', async () => {
-            // Hide search results when a model is shown
             try {
                 // Show loading state
                 const result = await importModelToScene(m);
@@ -75,6 +74,14 @@ export async function renderDownloadedModels() {
         div.querySelector('.btn-remove').addEventListener('click', async () => {
             console.log('Delete button clicked for model:', m.uid, m.name);
             await deleteDownloadedModel(m.uid);
+            // Remove the corresponding a-entity from the scene if present
+            const scene = document.querySelector('a-scene');
+            if (scene) {
+                const entity = scene.querySelector(`.imported-model-entity[data-uid='${m.uid}']`);
+                if (entity) {
+                    entity.parentNode.removeChild(entity);
+                }
+            }
             await renderDownloadedModels();
         });
         downloadedList.appendChild(div);

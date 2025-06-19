@@ -57,6 +57,7 @@ export function importModelToScene(model, allowMultiple = false) {
   // 4. Add the model entity to the scene
   const entity = document.createElement('a-entity');
   entity.setAttribute('class', 'imported-model-entity');
+  entity.setAttribute('data-uid', model.uid);
   // Ensure model is above the ground plane
   entity.setAttribute('position', '0 0.5 -5');
   entity.setAttribute('resize', { targetSize: 2.0, scaleLimit: 10.0 });

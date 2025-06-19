@@ -10,16 +10,12 @@ let lastPrevUrl = null;
 
 // Only keep downloadAndSaveModel and fetchPage for data logic, not UI
 export async function downloadAndSaveModel(model, glbFile) {
-  console.log('Download: Start for model', model.uid, model.name);
   const token = getAccessToken();
-  console.log('Access token:', token);
   if (!token) {
     alert('No access token found. Please log in again.');
     loginWithSketchfab();
     return;
   }
-  // 1. Get the download info (contains a signed URL)
-  console.log('Download: Fetching download info...');
   const downloadInfoRes = await fetch(`https://api.sketchfab.com/v3/models/${model.uid}/download`, {
     headers: { Authorization: `Bearer ${token}` }
   });
