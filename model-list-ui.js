@@ -8,11 +8,8 @@ export async function renderDownloadedModels() {
     const models = await getDownloadedModels(); downloadedList.innerHTML = '';
     if (!models.length) {
         downloadedList.innerHTML = 'No models downloaded yet.';
-        aframeDiv.classList.remove('visible');
         return;
     }
-
-    aframeDiv.classList.add('visible');
 
     models.forEach((m, idx) => {
         const div = document.createElement('div');

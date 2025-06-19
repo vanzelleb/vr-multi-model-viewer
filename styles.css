@@ -36,14 +36,6 @@
   max-width: 100vw;
 }
 
-#aframe {
-  display: none;
-}
-
-#aframe.visible {
-  display: block;
-}
-
 /* Responsive: stack sidebar on top for small screens */
 @media (max-width: 800px) {
   #container {
