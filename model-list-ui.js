@@ -16,11 +16,7 @@ export async function renderDownloadedModels() {
     // Insert a-scene if not already present
     if (aframePlaceholder && !aframePlaceholder.querySelector('a-scene')) {
         aframePlaceholder.innerHTML = `
-        <a-scene embedded renderer="colorManagement: true"
-      embedded
-      xr-mode-ui="enabled: false"
-      webxr="optionalFeatures: hit-test, local-floor;"
-      id="scene">
+        <a-scene embedded xr-mode-ui="enabled: true">
           <a-sky color="#87ceeb" hide-on-enter-ar></a-sky>
           <a-assets>
             <img id="gridTexture" src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r146/examples/textures/grid.png" crossorigin="anonymous" />
