@@ -35,7 +35,7 @@ window.renderSketchfabSearchResultsUI = function(
     let sizeMB = smallestGlb ? (smallestGlb.size / (1024 * 1024)).toFixed(2) : '';
     if (glbFiles) {
       downloadHtml = `
-        <button class="sketchfab-result-download" data-glb-idx="${glbFiles.indexOf(smallestGlb)}">${downloadedUids.has(model.uid) ? 'Downloaded' : 'Download'}</button>
+        <button class="sketchfab-result-download" data-glb-idx="${glbFiles.indexOf(smallestGlb)}">${downloadedUids.has(model.uid) ? 'See My Models' : 'Download'}</button>
       `;
     } else {
       downloadHtml = '<div class="sketchfab-result-size skfb-unavailable">No .glb available</div>';
@@ -55,9 +55,8 @@ window.renderSketchfabSearchResultsUI = function(
           await downloadAndSaveModel(model, smallestGlb);
           renderDownloadedModels();
           btn.textContent = 'See My Models';
-          btn.disabled = true;
           var url = location.href;               //Save down the URL without hash.
-          location.href = "#mymodels";                 //Go to the target element.
+          location.href = "#sidebar";                 //Go to the target element.
           history.replaceState(null, null, url);   //Don't like hashes. Changing it back.
         } catch (e) {
           alert('Download failed: ' + e.message);
