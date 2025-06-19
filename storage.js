@@ -44,28 +44,6 @@ export async function getDownloadedModels() {
   });
 }
 
-export async function saveDownloadedModels(models) {
-  console.log('Saving downloaded models:', models);
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    store.clear();
-    models.forEach(model => {
-      console.log('Storing model:', model);
-      store.put(model);
-    });
-    tx.oncomplete = () => {
-      console.log('Models saved successfully');
-      resolve();
-    };
-    tx.onerror = () => {
-      console.error('Error saving models:', tx.error);
-      reject(tx.error);
-    };
-  });
-}
-
 export async function addDownloadedModel(model) {
   console.log('Adding downloaded model:', model);
   const db = await openDB();

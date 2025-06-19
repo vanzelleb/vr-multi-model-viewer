@@ -7,9 +7,6 @@ export function importModelToScene(model, allowMultiple = false) {
     return { success: false, error: 'Scene not found' };
   }
 
-  // Remove previous imported model entities if not allowMultiple
-  // (Obsolete: always allow multiple models)
-
   // 1. Create blob URLs for all files
   const blobUrls = {};
   Object.entries(model.files).forEach(([filename, dataUrl]) => {
