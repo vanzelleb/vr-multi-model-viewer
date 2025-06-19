@@ -16,7 +16,11 @@ export async function renderDownloadedModels() {
     // Insert a-scene if not already present
     if (aframePlaceholder && !aframePlaceholder.querySelector('a-scene')) {
         aframePlaceholder.innerHTML = `
-        <a-scene embedded xr-mode-ui="enabled: true">
+        <a-scene embedded renderer="colorManagement: true"
+      embedded
+      xr-mode-ui="enabled: false"
+      webxr="optionalFeatures: hit-test, local-floor;"
+      id="scene">
           <a-sky color="#87ceeb" hide-on-enter-ar></a-sky>
           <a-assets>
             <img id="gridTexture" src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r146/examples/textures/grid.png" crossorigin="anonymous" />
@@ -33,6 +37,9 @@ export async function renderDownloadedModels() {
           <a-entity id="loadingMessage" text="value: Loading model...; color: #4299e1; align: center; width: 3" position="0 2 -2" scale="1.5 1.5 1.5" look-at-camera visible="false"></a-entity>
           <a-entity id="errorMessage" text="value: Error loading model; color: #e53e3e; align: center; width: 3" position="0 2 -2" scale="1.5 1.5 1.5" look-at-camera visible="false"></a-entity>
         </a-scene>
+            <!-- AR/VR Buttons -->
+    <button onclick="enterVR()">Enter VR</button>
+    <button onclick="enterAR()">Enter AR</button>
         `;
     }
 
@@ -57,8 +64,6 @@ export async function renderDownloadedModels() {
         const importBtn = div.querySelector('.btn-import');
         importBtn.addEventListener('click', async () => {
             // Hide search results when a model is shown
-            const searchResults = document.getElementById('sketchfab-search-results');
-            if (searchResults) searchResults.style.display = 'none';
             try {
                 // Show loading state
                 const result = await importModelToScene(m);

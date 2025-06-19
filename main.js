@@ -13,6 +13,31 @@ function showLogin() {
     document.getElementById('sketchfab-search-container').style.display = 'none';
 }
 
+async function enterVR() {
+    const sceneEl = document.querySelector("a-scene");
+    await sceneEl.renderer.xr.setSession(await navigator.xr.requestSession("immersive-vr", {
+        optionalFeatures: ["local-floor"]
+    }));
+}
+
+async function enterAR() {
+    const sceneEl = document.querySelector("a-scene");
+    if (!navigator.xr) {
+        alert("WebXR not supported");
+        return;
+    }
+
+    const isARSupported = await navigator.xr.isSessionSupported("immersive-ar");
+    if (!isARSupported) {
+        alert("AR not supported on this device/browser");
+        return;
+    }
+
+    await sceneEl.renderer.xr.setSession(await navigator.xr.requestSession("immersive-ar", {
+        requiredFeatures: ["hit-test", "local-floor"]
+    }));
+}
+
 async function renderFile(fileOrFilename) {
     let blob, name, size;
 
