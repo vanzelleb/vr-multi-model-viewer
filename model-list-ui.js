@@ -33,8 +33,10 @@ export async function renderDownloadedModels() {
         importBtn.addEventListener('click', async () => {
             try {
                 // Show loading state
-                importBtn.disabled = true;
                 const result = await importModelToScene(m);
+                var url = location.href;               //Save down the URL without hash.
+                location.href = "#aframe";                 //Go to the target element.
+                history.replaceState(null, null, url);   //Don't like hashes. Changing it back.
 
                 if (!result.success) {
                     throw new Error(result.error || 'Import failed');

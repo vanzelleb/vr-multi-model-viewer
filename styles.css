@@ -1,5 +1,3 @@
-/* ...existing code... */
-
 /* Ensure the container uses flex layout */
 #container {
   display: flex;
@@ -20,6 +18,11 @@
   position: relative;
 }
 
+/* Add space above the aframe div */
+#aframe {
+  margin-top: 2.5em;
+}
+
 /* Main scene area */
 /* ...existing code... */
 
@@ -34,6 +37,13 @@
   /* Changed from auto to visible */
   width: 100%;
   max-width: 100vw;
+}
+
+/* Give the aframe scene rounded corners and hide overflow */
+#aframe a-scene[embedded] {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
 }
 
 /* Responsive: stack sidebar on top for small screens */
