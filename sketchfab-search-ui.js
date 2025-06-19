@@ -54,7 +54,11 @@ window.renderSketchfabSearchResultsUI = function(
         try {
           await downloadAndSaveModel(model, smallestGlb);
           renderDownloadedModels();
+          btn.textContent = 'See My Models';
           btn.disabled = true;
+          var url = location.href;               //Save down the URL without hash.
+          location.href = "#mymodels";                 //Go to the target element.
+          history.replaceState(null, null, url);   //Don't like hashes. Changing it back.
         } catch (e) {
           alert('Download failed: ' + e.message);
           btn.textContent = 'Download';
