@@ -3,7 +3,7 @@ import { fetchPage } from './sketchfab-search.js';
 import { renderDownloadedModels } from './model-list-ui.js';
 
 // Expose a global UI render function for use by sketchfab-search.js
-window.renderSketchfabSearchResultsUI = function(
+window.renderSketchfabSearchResultsUI = function (
   resultsDiv,
   results,
   nextUrl,
@@ -12,6 +12,10 @@ window.renderSketchfabSearchResultsUI = function(
   downloadAndSaveModel
 ) {
   resultsDiv.innerHTML = '';
+  if (!results || results.length === 0) {
+    resultsDiv.textContent = 'No models found.';
+    return;
+  }
   const grid = document.createElement('div');
   grid.className = 'sketchfab-results-grid';
 
