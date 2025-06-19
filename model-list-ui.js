@@ -56,6 +56,9 @@ export async function renderDownloadedModels() {
       `;
         const importBtn = div.querySelector('.btn-import');
         importBtn.addEventListener('click', async () => {
+            // Hide search results when a model is shown
+            const searchResults = document.getElementById('sketchfab-search-results');
+            if (searchResults) searchResults.style.display = 'none';
             try {
                 // Show loading state
                 const result = await importModelToScene(m);
