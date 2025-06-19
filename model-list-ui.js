@@ -37,9 +37,6 @@ export async function renderDownloadedModels() {
           <a-entity id="loadingMessage" text="value: Loading model...; color: #4299e1; align: center; width: 3" position="0 2 -2" scale="1.5 1.5 1.5" look-at-camera visible="false"></a-entity>
           <a-entity id="errorMessage" text="value: Error loading model; color: #e53e3e; align: center; width: 3" position="0 2 -2" scale="1.5 1.5 1.5" look-at-camera visible="false"></a-entity>
         </a-scene>
-            <!-- AR/VR Buttons -->
-    <button onclick="enterVR()">Enter VR</button>
-    <button onclick="enterAR()">Enter AR</button>
         `;
     }
 

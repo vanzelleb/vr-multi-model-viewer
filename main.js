@@ -121,8 +121,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderDownloadedModels();
 
+    // Attach AR/VR button listeners
+    const enterVrBtn = document.getElementById('enter-vr-btn');
+    if (enterVrBtn) {
+        enterVrBtn.addEventListener('click', enterVR);
+    }
+    const enterArBtn = document.getElementById('enter-ar-btn');
+    if (enterArBtn) {
+        enterArBtn.addEventListener('click', enterAR);
+    }
+
     // easter egg
-    const elem = document.getElementsByTagName("a-scene").item(0)
+    const elem = document.getElementById('faq-container');
     let clickCount = 0;
     elem.addEventListener('click', async () => {
         clickCount++;
